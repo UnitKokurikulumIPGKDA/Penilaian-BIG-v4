@@ -32,15 +32,15 @@
             background: #1e293b;
             border-radius: 10px;
             outline: none;
-            margin: 12px 0;
+            margin: 10px 0;
             border: 1px solid #334155;
         }
 
         .giant-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             background: #10b981;
             border-radius: 50%;
             cursor: pointer;
@@ -96,6 +96,7 @@
         const { useState, useEffect, useMemo, useCallback } = React;
         const { motion, AnimatePresence } = window.Motion;
 
+        // --- KONFIGURASI URL ---
         const CSV_STUDENTS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTK1rQeMq2o_-KpvnhW8aitybwhR0cud8bxLgc7rs46GFba0lFnzsepdSHBR4qTYyP0eapgbbHXtsOG/pub?output=csv";
         const CSV_LECTURERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTK1rQeMq2o_-KpvnhW8aitybwhR0cud8bxLgc7rs46GFba0lFnzsepdSHBR4qTYyP0eapgbbHXtsOG/pub?gid=465305263&single=true&output=csv";
         const CSV_MARKS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTK1rQeMq2o_-KpvnhW8aitybwhR0cud8bxLgc7rs46GFba0lFnzsepdSHBR4qTYyP0eapgbbHXtsOG/pub?gid=1325589771&single=true&output=csv";
@@ -104,6 +105,7 @@
         const ADMIN_EMAIL = 'haniff.faizal@ipgm.edu.my';
         const KUMPULAN_LIST = ["GREY", "UNGU", "PINK", "KUNING", "BIRU", "HIJAU", "BIRU GELAP", "COKLAT", "JINGGA", "MERAH"];
 
+        // --- UTILS ---
         const parseCSV = (text) => {
             const rows = text.split(/\r?\n/).filter(r => r.trim());
             if (!rows.length) return [];
@@ -121,7 +123,7 @@
                     else if (h.includes('kumpulan_big') || h === 'kumpulan') key = 'kumpulan';
                     else if (h.includes('no_dalam_kumpulan')) key = 'no_kumpulan';
                     else if (h.includes('alahan')) key = 'alahan';
-                    else if (h.includes('no_tel_kecemasan')) key = 'tel_kecemasan';
+                    else if (h.includes('tel_kecemasan') || h.includes('no_tel_kecemasan')) key = 'tel_kecemasan';
                     else if (h === 'email') key = 'email';
                     else if (h === 'password') key = 'password';
                     obj[key] = values[i] || '';
@@ -130,27 +132,29 @@
             });
         };
 
+        // --- SUB-COMPONENTS ---
+
         const LoginView = ({ role, setRole, handleLogin }) => (
             <div className="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_50%_50%,#064e3b_0%,#020617_100%)]">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md glass-morphism p-8 rounded-[40px] border-emerald-500/20 shadow-2xl">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md glass-morphism p-8 rounded-[40px] border-emerald-500/20 shadow-2xl">
                     <div className="text-center mb-8">
                         <div className="inline-flex p-3 bg-emerald-500/10 rounded-2xl mb-4 border border-emerald-500/20">
-                            <i data-lucide="shield-check" className="text-emerald-500 w-8 h-8"></i>
+                            <i data-lucide="shield-check" className="text-emerald-500 w-10 h-10"></i>
                         </div>
                         <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">BIG Hub.</h2>
-                        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-2">Evaluation Terminal</p>
+                        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-2">Sistem Pemarkahan Amali</p>
                     </div>
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div className="flex p-1 bg-slate-800/40 rounded-xl border border-slate-700/50">
-                            <button type="button" onClick={() => setRole('staff')} className={`flex-1 py-2 text-[9px] font-black rounded-lg transition-all ${role === 'staff' ? 'bg-emerald-500 text-slate-950' : 'text-slate-500'}`}>STAFF</button>
-                            <button type="button" onClick={() => setRole('student')} className={`flex-1 py-2 text-[9px] font-black rounded-lg transition-all ${role === 'student' ? 'bg-emerald-500 text-slate-950' : 'text-slate-500'}`}>PELAJAR</button>
+                            <button type="button" onClick={() => setRole('staff')} className={`flex-1 py-2 text-[9px] font-black rounded-lg transition-all ${role === 'staff' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PENSYARAH</button>
+                            <button type="button" onClick={() => setRole('student')} className={`flex-1 py-2 text-[9px] font-black rounded-lg transition-all ${role === 'student' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PELAJAR</button>
                         </div>
                         {role === 'student' ? (
-                            <input name="ic" type="text" placeholder="Kad Pengenalan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 text-center font-bold tracking-widest" required />
+                            <input name="ic" type="text" placeholder="No. Kad Pengenalan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 text-center font-bold tracking-widest shadow-inner" required />
                         ) : (
                             <>
-                                <input name="email" type="email" placeholder="E-mel Rasmi" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500" required />
-                                <input name="password" type="password" placeholder="Kata Laluan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500" required />
+                                <input name="email" type="email" placeholder="E-mel Pensyarah" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 shadow-inner" required />
+                                <input name="password" type="password" placeholder="Kata Laluan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 shadow-inner" required />
                             </>
                         )}
                         <button type="submit" className="w-full py-4 rounded-xl bg-emerald-500 text-slate-950 font-black shadow-lg hover:bg-emerald-400 active:scale-95 transition-all uppercase tracking-widest text-xs">Akses Sistem</button>
@@ -167,8 +171,8 @@
             }, [students, currentUser, searchQuery]);
 
             return (
-                <div className="h-screen flex flex-col">
-                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shadow-xl shrink-0">
+                <div className="h-screen flex flex-col overflow-hidden">
+                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 shadow-xl z-50">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-black italic text-slate-950 shadow-lg text-sm">B</div>
                             <div>
@@ -179,28 +183,32 @@
                         <button onClick={onLogout} className="p-2 bg-slate-800 rounded-lg text-red-400 active:scale-90 transition-transform"><i data-lucide="log-out" className="w-4 h-4"></i></button>
                     </div>
 
-                    <div className="p-4 flex-1 overflow-y-auto no-scrollbar">
+                    <div className="p-4 flex-1 overflow-y-auto no-scrollbar bg-slate-950">
                         <div className="relative mb-4">
                             <i data-lucide="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-3 h-3"></i>
-                            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 pl-10 text-white focus:border-emerald-500 outline-none text-xs" placeholder="Cari nama pelajar..." />
+                            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 pl-10 text-white focus:border-emerald-500 outline-none text-xs shadow-inner" placeholder="Cari nama pelajar..." />
                         </div>
 
                         <div className="space-y-2">
-                            {filtered.map((s, idx) => (
-                                <motion.div whileTap={{ scale: 0.98 }} key={idx} onClick={() => { setSelectedStudent({...s}); setActiveEvalTab('kuiz'); }} className="glass-morphism p-3 rounded-2xl flex items-center gap-3 border-slate-800 active:border-emerald-500 shadow-lg">
-                                    <div className="w-10 h-10 rounded-lg bg-slate-800 overflow-hidden border border-slate-700 flex items-center justify-center shrink-0">
+                            {filtered.length > 0 ? filtered.map((s, idx) => (
+                                <motion.div whileTap={{ scale: 0.98 }} key={idx} onClick={() => { setSelectedStudent({...s}); setActiveEvalTab('amali3'); }} className="glass-morphism p-3 rounded-2xl flex items-center gap-3 border-slate-800 active:border-emerald-500 shadow-lg">
+                                    <div className="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden border border-slate-700 flex items-center justify-center shrink-0">
                                         {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="text-slate-600 w-4 h-4"></i>}
                                     </div>
                                     <div className="flex-1 overflow-hidden">
                                         <h4 className="font-extrabold text-white text-[10px] uppercase truncate leading-tight">{s.nama}</h4>
-                                        <p className="text-[8px] font-black text-emerald-500 uppercase">{s.kelas}</p>
+                                        <p className="text-[8px] font-black text-emerald-500 uppercase">{s.kelas} | Siri {s.siri || '?'}</p>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-sm font-black text-emerald-400">{s.marks.total}%</p>
                                     </div>
                                     <i data-lucide="chevron-right" className="text-slate-700 w-3 h-3"></i>
                                 </motion.div>
-                            ))}
+                            )) : (
+                                <div className="py-20 text-center glass-morphism rounded-3xl border-dashed border-slate-800">
+                                    <p className="text-slate-500 font-bold uppercase text-[8px] tracking-widest opacity-50">Tiada rekod pelajar seliaan</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -208,7 +216,6 @@
         };
 
         const EvaluationPanel = ({ student, activeTab, setActiveTab, setSelectedStudent, saveMarks, syncing }) => {
-            const [showGuide, setShowGuide] = useState(null);
             const [showRubric, setShowRubric] = useState(false);
 
             const hp3Wajaran = useMemo(() => {
@@ -216,131 +223,116 @@
                 return ((totalRaw / 600) * 25).toFixed(2);
             }, [student.marks.hp3_items]);
 
-            const GuideModal = ({ type }) => (
-                <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6" onClick={() => setShowGuide(null)}>
-                    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="glass-morphism p-6 rounded-[32px] w-full max-w-sm border-emerald-500/20" onClick={e => e.stopPropagation()}>
-                        <h4 className={`text-lg font-black mb-4 uppercase ${type === 'merit' ? 'text-emerald-400' : 'text-red-400'}`}>
-                            {type === 'merit' ? 'Panduan Merit (Bonus)' : 'Panduan Demerit (Penalti)'}
-                        </h4>
-                        <div className="space-y-4 text-[10px] text-slate-300 leading-relaxed text-left">
-                            {type === 'merit' ? (
-                                <p>✅ Kepimpinan Proaktif (+1-3 markah)<br/>✅ Membantu urusetia/rakan (+1-2 markah)<br/>✅ Inisiatif luar jangka (+2 markah)</p>
-                            ) : (
-                                <p>❌ Lewat berkumpul (-1-5 markah)<br/>❌ Tidak mengikut kod etika (-2 markah)<br/>❌ Pasif dalam aktiviti (-3 markah)</p>
-                            )}
-                        </div>
-                        <button onClick={() => setShowGuide(null)} className="w-full mt-6 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-xs uppercase">Faham</button>
-                    </motion.div>
-                </div>
-            );
+            // Merit & Demerit Logic affects HP8 directly
+            const adjustHP8 = (amount) => {
+                const newInd = Math.min(20, Math.max(0, parseFloat(student.marks.hp8_ind) + amount));
+                const newKum = Math.min(30, Math.max(0, parseFloat(student.marks.hp8_kum) + amount));
+                
+                setSelectedStudent(prev => ({
+                    ...prev,
+                    marks: {
+                        ...prev.marks,
+                        hp8_ind: newInd.toString(),
+                        hp8_kum: newKum.toString()
+                    }
+                }));
+            };
 
             const RubricModal = ({ type }) => (
                 <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6" onClick={() => setShowRubric(false)}>
                     <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="glass-morphism p-6 rounded-[32px] w-full max-w-md border-emerald-500/20 overflow-y-auto max-h-[80vh]" onClick={e => e.stopPropagation()}>
                         <h4 className="text-lg font-black mb-4 uppercase text-emerald-400 italic">Info Rubrik BIG 2026</h4>
-                        <div className="space-y-6 text-[10px] text-slate-300 text-left leading-relaxed">
+                        <div className="space-y-4 text-[10px] text-slate-300 text-left leading-relaxed">
                             {type === 'amali2' ? (
                                 <div>
-                                    <p className="font-bold text-white mb-2 underline">AMALI 2: KEPIMPINAN & SAHSIAH</p>
-                                    <p>• HP4 (15m): Interpersonal & Kerja Berpasukan</p>
-                                    <p>• HP5 (10m): Kemahiran Komunikasi</p>
-                                    <p>• HP8 Ind (20m): Integriti & Akauntabiliti</p>
-                                    <p>• HP8 Kum (30m): Kolaborasi & Autonomi</p>
+                                    <p className="font-bold text-white mb-1 underline">AMALI 2: KEPIMPINAN & SAHSIAH</p>
+                                    <p>• HP4 (15m): Interpersonal, Kerjasama Berpasukan, Hormat.</p>
+                                    <p>• HP5 (10m): Kemahiran Komunikasi, Penyampaian Idea.</p>
+                                    <p>• HP8 Ind (20m): Integriti, Kejujuran, Akauntabiliti.</p>
+                                    <p>• HP8 Kum (30m): Kolaborasi, Tanggungjawab Kolektif, Autonomi.</p>
                                 </div>
                             ) : (
                                 <div>
-                                    <p className="font-bold text-white mb-2 underline">AMALI 3: KEMAHIRAN PRAKTIKAL (25%)</p>
-                                    <p>1. Kecergasan: Daya tahan fizikal sepanjang amali.</p>
-                                    <p>2. Pemakanan: Pengurusan diet & kebersihan.</p>
-                                    <p>3. Kembara: Navigasi & ketahanan mental.</p>
-                                    <p>4. Keyakinan Air: Kemahiran asas keselamatan air.</p>
-                                    <p>5. Rakit/Kayak: Kemahiran mendayung & teknikal.</p>
-                                    <p>6. Tali Tinggi: Keberanian & kemahiran ikatan.</p>
+                                    <p className="font-bold text-white mb-1 underline">AMALI 3: KEMAHIRAN PRAKTIKAL (25%)</p>
+                                    <p>1. Kecergasan: Ketahanan fizikal sepanjang kursus.</p>
+                                    <p>2. Pemakanan: Penjagaan diet, kebersihan & SOP makanan.</p>
+                                    <p>3. Kembara: Navigasi, mental & kembara survival.</p>
+                                    <p>4. Keyakinan Air: Apungan, keselamatan & teknik air.</p>
+                                    <p>5. Rakit/Kayak: Koordinasi mendayung & mekanik air.</p>
+                                    <p>6. Tali Tinggi: Keberanian & teknikal ikatan/simpulan.</p>
                                 </div>
                             )}
                         </div>
-                        <button onClick={() => setShowRubric(false)} className="w-full mt-6 py-3 bg-slate-800 text-white rounded-xl font-black text-xs uppercase">Tutup</button>
+                        <button onClick={() => setShowRubric(false)} className="w-full mt-6 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-xs uppercase shadow-lg shadow-emerald-500/20">Tutup</button>
                     </motion.div>
                 </div>
             );
 
             return (
                 <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed inset-0 z-50 bg-[#020617] flex flex-col h-full overflow-hidden text-center">
-                    {showGuide && <GuideModal type={showGuide} />}
                     {showRubric && <RubricModal type={activeTab} />}
                     
-                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0">
-                        <button onClick={() => setSelectedStudent(null)} className="p-2 bg-slate-800 rounded-lg text-slate-400"><i data-lucide="chevron-left" className="w-4 h-4"></i></button>
-                        <div className="text-center overflow-hidden px-2">
-                            <h2 className="text-[10px] font-black text-white uppercase truncate leading-tight">{student.nama}</h2>
-                            <p className="text-[8px] font-bold text-emerald-500">{student.no_kp}</p>
+                    {/* Header with HUGE Image for easier identification */}
+                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-4 shrink-0 shadow-2xl relative z-10">
+                        <button onClick={() => setSelectedStudent(null)} className="p-2.5 bg-slate-800 rounded-xl text-slate-400 shrink-0 shadow-inner"><i data-lucide="chevron-left" className="w-5 h-5"></i></button>
+                        
+                        <div className="w-20 h-20 rounded-[24px] bg-slate-800 overflow-hidden border-2 border-emerald-500/30 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/10">
+                            {student.url_gambar ? (
+                                <img src={student.url_gambar} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-900"><i data-lucide="user" size={40}></i></div>
+                            )}
+                            <div className="absolute bottom-0 w-full bg-emerald-500/90 text-[7px] font-black text-slate-950 py-0.5 text-center uppercase tracking-tighter">Verified</div>
                         </div>
-                        <div className="w-8 h-8 rounded-lg bg-slate-800 overflow-hidden border border-emerald-500/20">
-                            {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="m-auto text-slate-600 w-4 h-4 mt-2"></i>}
+
+                        <div className="flex-1 overflow-hidden text-left">
+                            <h2 className="text-[14px] font-black text-white uppercase truncate leading-none mb-1 tracking-tight">{student.nama}</h2>
+                            <p className="text-[9px] font-bold text-slate-500 truncate mb-2">Unit: {student.kelas} | Siri: {student.siri || '?'}</p>
+                            <div className="flex gap-1.5">
+                                <div className="flex flex-col">
+                                    <span className="text-[6px] font-black text-slate-600 uppercase">HP8 IND</span>
+                                    <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-400">{student.marks.hp8_ind}/20</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[6px] font-black text-slate-600 uppercase">HP8 KUM</span>
+                                    <span className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded text-[9px] font-black text-blue-400">{student.marks.hp8_kum}/30</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="px-4 py-2 flex gap-2 bg-slate-900 border-b border-slate-800 shrink-0 overflow-x-auto no-scrollbar">
-                        {[{id:'kuiz',icon:'trophy',l:'KUIZ'},{id:'amali2',icon:'layers',l:'AMALI 2'},{id:'amali3',icon:'activity',l:'AMALI 3'}].map(t => (
-                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex-1 min-w-[80px] py-2 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === t.id ? 'tab-active' : 'bg-slate-800 text-slate-500'}`}>
-                                <i data-lucide={t.icon} className="w-3 h-3"></i>
-                                <span className="text-[8px] font-black">{t.l}</span>
+                    <div className="px-4 py-2 flex gap-2 bg-slate-900 border-b border-slate-800 shrink-0 overflow-x-auto no-scrollbar z-10">
+                        {[{id:'amali3',icon:'activity',l:'AMALI 3'},{id:'amali2',icon:'layers',l:'AMALI 2'},{id:'kuiz',icon:'trophy',l:'KUIZ'}].map(t => (
+                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex-1 min-w-[80px] py-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === t.id ? 'tab-active' : 'bg-slate-800 text-slate-500'}`}>
+                                <i data-lucide={t.icon} className="w-3.5 h-3.5"></i>
+                                <span className="text-[8px] font-black tracking-widest">{t.l}</span>
                             </button>
                         ))}
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 pb-24 no-scrollbar">
-                        {activeTab === 'kuiz' && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <div className="flex items-center gap-2 text-emerald-400 font-black italic text-xs mb-2"><i data-lucide="trophy" className="w-4 h-4"></i> PENILAIAN KUIZ (10%)</div>
-                                {['kuiz1', 'kuiz2'].map(k => (
-                                    <div key={k} className="p-4 glass-morphism rounded-2xl text-center border-emerald-500/5">
-                                        <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1 block">{k.toUpperCase()}</label>
-                                        <input type="number" value={student.marks[k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [k]: e.target.value}}))} className="w-full bg-transparent text-center text-4xl font-black text-white border-none outline-none" />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {activeTab === 'amali2' && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-2 text-emerald-400 font-black italic text-xs"><i data-lucide="layers" className="w-4 h-4"></i> AMALI 2 (70%)</div>
-                                    <button onClick={() => setShowRubric(true)} className="p-2 bg-slate-800 rounded-lg text-emerald-500 active:scale-90"><i data-lucide="info" className="w-4 h-4"></i></button>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {[{k:'hp4',l:'HP4 (15)'},{k:'hp5',l:'HP5 (10)'},{k:'hp8_ind',l:'HP8 Ind (20)'},{k:'hp8_kum',l:'HP8 Kum (30)'}].map(item => (
-                                        <div key={item.k} className="p-3 glass-morphism rounded-xl border border-slate-800">
-                                            <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">{item.l}</label>
-                                            <input type="number" value={student.marks[item.k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [item.k]: e.target.value}}))} className="w-full bg-transparent text-xl font-black text-white outline-none" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
+                    <div className="flex-1 overflow-y-auto p-4 pb-28 no-scrollbar bg-slate-950">
                         {activeTab === 'amali3' && (
-                            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="space-y-3 animate-in fade-in duration-300">
                                 <div className="flex justify-between items-center mb-1">
-                                    <div className="flex items-center gap-2 text-emerald-400 font-black italic text-xs"><i data-lucide="activity" className="w-4 h-4"></i> AMALI 3 (25%)</div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => setShowGuide('merit')} className="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-[7px] font-black text-emerald-400 uppercase tracking-tighter">MERIT</button>
-                                        <button onClick={() => setShowGuide('demerit')} className="px-2 py-1 bg-red-500/10 border border-red-500/20 rounded-md text-[7px] font-black text-red-400 uppercase tracking-tighter">DEMERIT</button>
-                                        <button onClick={() => setShowRubric(true)} className="p-1.5 bg-slate-800 rounded-md text-emerald-500 active:scale-90"><i data-lucide="info" className="w-3.5 h-3.5"></i></button>
+                                    <div className="flex items-center gap-2 text-emerald-400 font-black italic text-[10px]"><i data-lucide="activity" className="w-3.5 h-3.5"></i> AMALI 3 (25%)</div>
+                                    <div className="flex gap-1.5">
+                                        <button onClick={() => adjustHP8(1)} className="px-3 py-1.5 bg-emerald-500 text-slate-950 rounded-lg text-[9px] font-black active:scale-90 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1"><i data-lucide="plus" className="w-2 h-2"></i> MERIT</button>
+                                        <button onClick={() => adjustHP8(-1)} className="px-3 py-1.5 bg-red-500 text-white rounded-lg text-[9px] font-black active:scale-90 transition-all shadow-lg shadow-red-500/20 flex items-center gap-1"><i data-lucide="minus" className="w-2 h-2"></i> DEMERIT</button>
+                                        <button onClick={() => setShowRubric(true)} className="p-2 bg-slate-800 rounded-lg text-emerald-500 border border-slate-700 active:scale-90"><i data-lucide="info" className="w-4 h-4"></i></button>
                                     </div>
                                 </div>
 
                                 <div className="bg-emerald-500/5 p-2 rounded-xl border border-emerald-500/20 flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-black text-emerald-400 italic">SKOR WAJARAN</span>
+                                    <span className="text-[9px] font-black text-emerald-400 italic tracking-wider">SKOR WAJARAN PRAKTIKAL</span>
                                     <span className="text-sm font-black text-emerald-400 font-mono leading-none">{hp3Wajaran}%</span>
                                 </div>
                                 
                                 <div className="space-y-1">
                                     {["Kecergasan", "Pemakanan", "Kembara", "Keyakinan Air", "Rakit / Kayak", "Tali Tinggi"].map((label, idx) => (
-                                        <div key={label} className="p-3 glass-morphism rounded-2xl border-slate-800/50">
+                                        <div key={label} className="p-3 glass-morphism rounded-2xl border-slate-800/50 shadow-inner">
                                             <div className="flex justify-between items-center mb-1">
-                                                <span className="text-[9px] font-black text-white uppercase">{idx+1}. {label}</span>
-                                                <span className="text-sm font-black text-emerald-500 font-mono">{student.marks.hp3_items[idx]}%</span>
+                                                <span className="text-[10px] font-black text-white uppercase tracking-tight">{idx+1}. {label}</span>
+                                                <span className="text-base font-black text-emerald-500 font-mono">{student.marks.hp3_items[idx]}%</span>
                                             </div>
                                             <input type="range" min="0" max="100" value={student.marks.hp3_items[idx]} onChange={e => {
                                                 const newM = [...student.marks.hp3_items];
@@ -352,12 +344,49 @@
                                 </div>
                             </div>
                         )}
+
+                        {activeTab === 'amali2' && (
+                            <div className="space-y-4 animate-in fade-in duration-300">
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center gap-2 text-emerald-400 font-black italic text-[10px]"><i data-lucide="layers" className="w-3.5 h-3.5"></i> AMALI 2 (70%)</div>
+                                    <button onClick={() => setShowRubric(true)} className="p-2 bg-slate-800 rounded-lg text-emerald-500 border border-slate-700 active:scale-90 shadow-lg"><i data-lucide="info" className="w-4 h-4"></i></button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        {k:'hp4',l:'HP4 (15)'},
+                                        {k:'hp5',l:'HP5 (10)'},
+                                        {k:'hp8_ind',l:'HP8 Ind (20)'},
+                                        {k:'hp8_kum',l:'HP8 Kum (30)'}
+                                    ].map(item => (
+                                        <div key={item.k} className="p-4 glass-morphism rounded-2xl border border-slate-800 text-center shadow-lg">
+                                            <label className="text-[8px] font-black text-slate-500 uppercase block mb-2 tracking-widest leading-none">{item.l}</label>
+                                            <input type="number" value={student.marks[item.k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [item.k]: e.target.value}}))} className="w-full bg-transparent text-center text-3xl font-black text-white outline-none focus:text-emerald-400 transition-colors" />
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-2xl text-[8px] text-slate-500 italic text-center leading-relaxed">
+                                    Sila kemaskini markah HP8 secara manual atau menggunakan butang Merit/Demerit di tab Amali 3.
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'kuiz' && (
+                            <div className="space-y-4 animate-in fade-in duration-300">
+                                <div className="flex items-center gap-2 text-emerald-400 font-black italic text-[10px] mb-2"><i data-lucide="trophy" className="w-3.5 h-3.5"></i> KUIZ BERKALA (5%)</div>
+                                {['kuiz1', 'kuiz2'].map(k => (
+                                    <div key={k} className="p-6 glass-morphism rounded-3xl text-center border-emerald-500/5 shadow-2xl">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">{k.toUpperCase()}</label>
+                                        <input type="number" value={student.marks[k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [k]: e.target.value}}))} className="w-full bg-transparent text-center text-6xl font-black text-white border-none outline-none focus:text-emerald-400 transition-colors" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="p-4 bg-slate-900 border-t border-slate-800 fixed bottom-0 w-full z-10 shrink-0 shadow-2xl">
-                        <button onClick={saveMarks} disabled={syncing} className="w-full py-3 rounded-xl bg-emerald-500 text-slate-950 font-black text-[10px] flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
-                            {syncing ? <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <i data-lucide="check-circle-2" className="w-4 h-4"></i>}
-                            SIMPAN PEMARKAHAN PELAJAR
+                    <div className="p-4 bg-slate-900 border-t border-slate-800 fixed bottom-0 w-full z-20 shrink-0 shadow-[0_-15px_40px_rgba(0,0,0,0.5)]">
+                        <button onClick={saveMarks} disabled={syncing} className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(16,185,129,0.4)] active:scale-95 transition-all uppercase tracking-widest">
+                            {syncing ? <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <i data-lucide="save" className="w-4 h-4"></i>}
+                            SAHKAN & SIMPAN PEMARKAHAN
                         </button>
                     </div>
                 </motion.div>
@@ -379,23 +408,23 @@
             return (
                 <div className="min-h-screen flex items-center justify-center p-4 bg-[#020617] overflow-y-auto no-scrollbar">
                     <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-lg glass-morphism rounded-[40px] overflow-hidden border-emerald-500/20 shadow-2xl my-4">
-                        <div className="bg-emerald-500 p-8 flex flex-col items-center">
-                            <div className="w-24 h-24 bg-slate-950 rounded-[32px] p-1 mb-4 shadow-2xl overflow-hidden border-2 border-slate-950/20">
-                                {formData.url_gambar ? <img src={formData.url_gambar} className="w-full h-full object-cover" /> : <div className="p-6 text-emerald-500"><i data-lucide="user" className="w-full h-full"></i></div>}
+                        <div className="bg-emerald-500 p-8 flex flex-col items-center shadow-xl">
+                            <div className="w-28 h-28 bg-slate-950 rounded-[36px] p-1 mb-4 shadow-2xl overflow-hidden border-4 border-slate-950/20">
+                                {formData.url_gambar ? <img src={formData.url_gambar} className="w-full h-full object-cover" /> : <div className="p-8 text-emerald-500"><i data-lucide="user" className="w-full h-full"></i></div>}
                             </div>
-                            <h2 className="text-xl font-black text-slate-950 uppercase text-center leading-none italic">{currentUser?.nama}</h2>
-                            <p className="text-[9px] font-black text-slate-900/60 uppercase mt-2 tracking-widest">Digital Student Identity</p>
+                            <h2 className="text-xl font-black text-slate-950 uppercase text-center leading-none italic tracking-tight">{currentUser?.nama}</h2>
+                            <p className="text-[9px] font-black text-slate-900/60 uppercase mt-2 tracking-widest border-t border-slate-950/10 pt-2">Pelajar BIG 2026</p>
                         </div>
-                        <div className="p-6 space-y-5">
+                        <div className="p-6 space-y-4">
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-1">
                                         <label className="text-[8px] font-black text-slate-500 uppercase px-1">Siri BIG</label>
-                                        <input value={formData.siri} onChange={e => handleChange('siri', e.target.value)} className="form-input" placeholder="Siri..." />
+                                        <input value={formData.siri} onChange={e => handleChange('siri', e.target.value)} className="form-input shadow-inner" placeholder="Contoh: 1/2026" />
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[8px] font-black text-slate-500 uppercase px-1">Kumpulan</label>
-                                        <select value={formData.kumpulan.toUpperCase()} onChange={e => handleChange('kumpulan', e.target.value)} className="form-input appearance-none">
+                                        <select value={formData.kumpulan.toUpperCase()} onChange={e => handleChange('kumpulan', e.target.value)} className="form-input appearance-none shadow-inner">
                                             <option value="">Pilih</option>
                                             {KUMPULAN_LIST.map(k => <option key={k} value={k}>{k}</option>)}
                                         </select>
@@ -404,39 +433,41 @@
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-1">
                                         <label className="text-[8px] font-black text-slate-500 uppercase px-1">No. Ahli</label>
-                                        <input type="number" value={formData.no_kumpulan} onChange={e => handleChange('no_kumpulan', e.target.value)} className="form-input" placeholder="No..." />
+                                        <input type="number" value={formData.no_kumpulan} onChange={e => handleChange('no_kumpulan', e.target.value)} className="form-input shadow-inner" placeholder="No..." />
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[8px] font-black text-slate-500 uppercase px-1">Unit/Kelas</label>
-                                        <input value={currentUser.kelas} disabled className="form-input opacity-50 bg-slate-900" />
+                                        <input value={currentUser.kelas} disabled className="form-input opacity-50 bg-slate-900 cursor-not-allowed" />
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[8px] font-black text-slate-500 uppercase px-1">Alahan</label>
-                                    <input value={formData.alahan} onChange={e => handleChange('alahan', e.target.value)} className="form-input" placeholder="Nyatakan jika ada" />
+                                    <label className="text-[8px] font-black text-slate-500 uppercase px-1">Alahan Spesifik</label>
+                                    <input value={formData.alahan} onChange={e => handleChange('alahan', e.target.value)} className="form-input shadow-inner" placeholder="Nyatakan jika ada..." />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[8px] font-black text-slate-500 uppercase px-1">No. Tel Waris</label>
-                                    <input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input" placeholder="0123456789" />
+                                    <label className="text-[8px] font-black text-slate-500 uppercase px-1">No. Tel Waris (Kecemasan)</label>
+                                    <input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input shadow-inner" placeholder="0123456789" />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-[8px] font-black text-slate-500 uppercase px-1">URL Gambar Profil</label>
-                                    <input value={formData.url_gambar} onChange={e => handleChange('url_gambar', e.target.value)} className="form-input" placeholder="https://drive..." />
+                                    <label className="text-[8px] font-black text-slate-500 uppercase px-1">URL Gambar Profil (Link Drive/Web)</label>
+                                    <input value={formData.url_gambar} onChange={e => handleChange('url_gambar', e.target.value)} className="form-input shadow-inner text-[10px]" placeholder="https://..." />
                                 </div>
                             </div>
                             
                             <div className="pt-2 space-y-3">
-                                <button onClick={() => saveBiodata(formData)} disabled={syncing} className="w-full py-3 bg-emerald-500 text-slate-950 font-black rounded-xl text-xs uppercase shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <button onClick={() => saveBiodata(formData)} disabled={syncing} className="w-full py-4 bg-emerald-500 text-slate-950 font-black rounded-2xl text-xs uppercase shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center justify-center gap-2">
                                     {syncing ? <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <i data-lucide="save" className="w-4 h-4"></i>}
-                                    KEMASKINI PROFIL
+                                    KEMASKINI BIODATA CLOUD
                                 </button>
-                                <button onClick={onLogout} className="w-full py-3 text-[9px] font-black uppercase text-slate-500 tracking-[0.4em] border border-slate-800 rounded-xl">Log Keluar</button>
+                                <button onClick={onLogout} className="w-full py-3 text-[9px] font-black uppercase text-slate-500 tracking-[0.4em] border border-slate-800 rounded-xl hover:bg-red-500/5 transition-colors">TUTUP AKSES</button>
                             </div>
                         </div>
                     </motion.div>
                 </div>
             );
         };
+
+        // --- MAIN APP COMPONENT ---
 
         function App() {
             const [view, setView] = useState('login');
@@ -446,7 +477,7 @@
             const [lecturers, setLecturers] = useState([]);
             const [loading, setLoading] = useState(true);
             const [selectedStudent, setSelectedStudent] = useState(null);
-            const [activeEvalTab, setActiveEvalTab] = useState('kuiz');
+            const [activeEvalTab, setActiveEvalTab] = useState('amali3');
             const [syncing, setSyncing] = useState(false);
             const [searchQuery, setSearchQuery] = useState('');
 
@@ -468,9 +499,12 @@
                             assigned_lecturer: mD.nama_pensyarah || '',
                             marks: {
                                 kuiz1: mD.kuiz1 || '0', kuiz2: mD.kuiz2 || '0',
+                                // DEFAULT MARKS 70% PER USER REQUEST
                                 hp3_items: [70, 70, 70, 70, 70, 70],
-                                hp4: mD['hp4_(10%)'] || '0', hp5: mD['hp5_(10%)'] || '0',
-                                hp8_ind: mD['hp8_ind_(15%)'] || '0', hp8_kum: mD['hp8_kum_(30%)'] || '0',
+                                hp4: mD['hp4_(10%)'] || '10.5', 
+                                hp5: mD['hp5_(10%)'] || '7',    
+                                hp8_ind: mD['hp8_ind_(15%)'] || '14', // 70% of 20 is 14
+                                hp8_kum: mD['hp8_kum_(30%)'] || '21', // 70% of 30 is 21
                                 total: mD['jumlah_(100%)'] || '0'
                             }
                         };
@@ -478,7 +512,7 @@
 
                     setStudents(pS);
                     setLecturers(pL);
-                } catch (e) { console.error(e); }
+                } catch (e) { console.error("Sync Error:", e); }
                 finally { setSyncing(false); setLoading(false); }
             }, []);
 
@@ -497,12 +531,12 @@
                 if (role === 'student') {
                     const found = students.find(s => s.no_kp === ic);
                     if (found) { setCurrentUser(found); setView('student_portal'); }
-                    else alert("Identiti pelajar tidak dikesan.");
+                    else alert("Identiti pelajar tidak dikesan dalam pangkalan data.");
                 } else {
                     const lect = lecturers.find(l => l.email.toLowerCase() === email && l.password.toString() === pass);
                     if (lect) {
                         setCurrentUser(lect);
-                        setView(lect.email === ADMIN_EMAIL ? 'admin_dashboard' : 'lecturer_dashboard');
+                        setView('lecturer_dashboard');
                     } else alert("Emel atau Kata Laluan tidak sah.");
                 }
             };
@@ -525,10 +559,10 @@
                             }
                         })
                     });
-                    alert("Markah Berjaya Disimpan!");
+                    alert("Data Pemarkahan Berjaya Dihantar!");
                     setSelectedStudent(null);
                     fetchData();
-                } catch (e) { alert("Ralat Server."); }
+                } catch (e) { alert("Ralat Server. Sila cuba lagi."); }
                 finally { setSyncing(false); }
             };
 
@@ -542,16 +576,16 @@
                             data: formData
                         })
                     });
-                    alert("Biodata dikemaskini!");
+                    alert("Rekod Biodata Telah Dikemaskini!");
                     fetchData();
-                } catch (e) { alert("Ralat."); }
+                } catch (e) { alert("Gagal mengemaskini."); }
                 finally { setSyncing(false); }
             };
 
             if (loading) return (
                 <div className="h-screen flex flex-col items-center justify-center gap-6 bg-[#020617]">
                     <div className="w-12 h-12 border-4 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin"></div>
-                    <p className="text-emerald-500 font-bold tracking-[0.4em] text-[10px] animate-pulse">MEMUAT PROTOKOL...</p>
+                    <p className="text-emerald-500 font-bold tracking-[0.4em] text-[10px] animate-pulse">SYNCHRONIZING PROTOCOL...</p>
                 </div>
             );
 
