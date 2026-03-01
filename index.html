@@ -12,6 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -25,29 +26,27 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Giant Touch-Friendly Slider */
         .giant-slider {
             -webkit-appearance: none;
             width: 100%;
-            height: 12px;
+            height: 10px;
             background: #1e293b;
             border-radius: 10px;
             outline: none;
-            margin: 12px 0;
+            margin: 10px 0;
             border: 1px solid #334155;
         }
 
         .giant-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             background: #10b981;
             border-radius: 50%;
             cursor: pointer;
             border: 4px solid #0f172a;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
-            transition: transform 0.1s ease-in-out;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
         }
 
         .glass-morphism {
@@ -60,7 +59,7 @@
         .tab-active {
             background: #10b981 !important;
             color: #020617 !important;
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
             font-weight: 800;
         }
 
@@ -87,27 +86,26 @@
         }
 
         .form-input {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(30, 41, 59, 0.5);
             border: 1px solid #334155;
-            border-radius: 14px;
-            padding: 12px 16px;
+            border-radius: 12px;
+            padding: 10px 14px;
             width: 100%;
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             outline: none;
             transition: all 0.2s;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .form-input:focus {
             border-color: #10b981;
-            background: rgba(16, 185, 129, 0.05);
+            box-shadow: 0 0 0 1px #10b981;
         }
 
-        .scan-glow {
-            animation: scan-glow 2s infinite;
+        .scan-pulse {
+            animation: scan-pulse 2s infinite;
         }
-        @keyframes scan-glow {
+        @keyframes scan-pulse {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
             70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
@@ -118,7 +116,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo, useCallback } = React;
+        const { useState, useEffect, useMemo, useCallback, useRef } = React;
         const { motion, AnimatePresence } = window.Motion;
 
         // --- KONFIGURASI URL ---
@@ -153,8 +151,7 @@
                     else if (h.includes('kumpulan_big') || h === 'kumpulan') key = 'kumpulan';
                     else if (h.includes('no_dalam_kumpulan')) key = 'no_kumpulan';
                     else if (h.includes('alahan')) key = 'alahan';
-                    else if (h.includes('tel_kecemasan') || h.includes('no_tel_kecemasan')) key = 'tel_kecemasan';
-                    else if (h.includes('jawatan')) key = 'jawatan';
+                    else if (h.includes('tel_kecemasan')) key = 'tel_kecemasan';
                     else if (h === 'email') key = 'email';
                     else if (h === 'password') key = 'password';
                     obj[key] = values[i] || '';
@@ -163,45 +160,217 @@
             });
         };
 
-        // --- UI VIEWS ---
+        // --- ADMIN COMPONENTS ---
 
-        const LoginView = ({ role, setRole, handleLogin, loadingData }) => (
-            <div className="min-h-screen flex items-center justify-center p-6 bg-[#020617]">
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md glass-morphism p-8 rounded-[40px] border-emerald-500/20 shadow-2xl">
-                    <div className="text-center mb-8">
-                        <div className="inline-flex p-3 bg-emerald-500/10 rounded-2xl mb-4 border border-emerald-500/20">
-                            <i data-lucide="shield-check" className="text-emerald-500 w-10 h-10"></i>
-                        </div>
-                        <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">BIG Hub.</h2>
-                        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-2 text-emerald-500/70">Sistem Pemarkahan BIG</p>
-                    </div>
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div className="flex p-1 bg-slate-800/40 rounded-xl border border-slate-700/50">
-                            <button type="button" onClick={() => setRole('staff')} className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${role === 'staff' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PENSYARAH</button>
-                            <button type="button" onClick={() => setRole('student')} className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${role === 'student' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PELAJAR</button>
-                        </div>
-                        {role === 'student' ? (
-                            <input name="ic" type="text" placeholder="Masukkan No. Kad Pengenalan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 text-center font-bold tracking-widest shadow-inner" required />
-                        ) : (
-                            <div className="space-y-4">
-                                <input name="email" type="email" placeholder="E-mel Pensyarah" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 shadow-inner" required />
-                                <input name="password" type="password" placeholder="Kata Laluan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 shadow-inner" required />
+        const BellCurveChart = ({ students }) => {
+            const canvasRef = useRef(null);
+            
+            useEffect(() => {
+                if (!canvasRef.current || students.length === 0) return;
+                
+                const scores = students.map(s => parseFloat(s.marks.total) || 0).filter(s => s > 0);
+                const labels = ['F', 'E', 'D', 'C', 'B', 'A'];
+                const dataPoints = Array(6).fill(0);
+                
+                scores.forEach(score => {
+                    if (score < 40) dataPoints[0]++;
+                    else if (score < 50) dataPoints[1]++;
+                    else if (score < 60) dataPoints[2]++;
+                    else if (score < 70) dataPoints[3]++;
+                    else if (score < 80) dataPoints[4]++;
+                    else dataPoints[5]++;
+                });
+
+                const ctx = canvasRef.current.getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Bilangan Pelajar',
+                            data: dataPoints,
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: '#10b981',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#10b981',
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } },
+                            x: { grid: { display: false }, ticks: { color: '#64748b', font: { weight: 'bold' } } }
+                        }
+                    }
+                });
+
+                return () => chart.destroy();
+            }, [students]);
+
+            return <canvas ref={canvasRef} />;
+        };
+
+        const AdminDashboard = ({ students, onLogout }) => {
+            const [search, setSearch] = useState('');
+            
+            const stats = useMemo(() => {
+                const validMarks = students.map(s => parseFloat(s.marks.total) || 0).filter(m => m > 0);
+                const avg = validMarks.length ? (validMarks.reduce((a,b) => a+b, 0) / validMarks.length).toFixed(1) : 0;
+                const passCount = validMarks.filter(m => m >= 40).length;
+                return { avg, total: students.length, passRate: ((passCount / (students.length || 1)) * 100).toFixed(0) };
+            }, [students]);
+
+            const filteredStudents = students.filter(s => s.nama.toLowerCase().includes(search.toLowerCase()));
+
+            return (
+                <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
+                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 shadow-2xl z-50">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center font-black italic text-slate-950">BIG</div>
+                            <div>
+                                <h1 className="font-black text-xs uppercase tracking-widest text-white leading-none">Admin Terminal</h1>
+                                <p className="text-[9px] text-emerald-500 font-bold">Haniff Faizal (Ketua Unit)</p>
                             </div>
-                        )}
-                        <button type="submit" disabled={loadingData} className="w-full py-4 rounded-xl bg-emerald-500 text-slate-950 font-black shadow-lg hover:bg-emerald-400 active:scale-95 transition-all uppercase tracking-widest text-xs disabled:opacity-50">
-                            {loadingData ? "Memproses Data..." : "Mula Sesi"}
-                        </button>
-                    </form>
-                </motion.div>
-            </div>
-        );
+                        </div>
+                        <button onClick={onLogout} className="p-2.5 bg-slate-800 rounded-xl text-red-400 active:scale-90"><i data-lucide="log-out" size={18}></i></button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-6">
+                        {/* Stats Cards */}
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="glass-morphism p-4 rounded-3xl text-center border-emerald-500/10 shadow-lg">
+                                <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Purata Kohort</p>
+                                <p className="text-xl font-black text-emerald-400">{stats.avg}%</p>
+                            </div>
+                            <div className="glass-morphism p-4 rounded-3xl text-center border-slate-800 shadow-lg">
+                                <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Total Calon</p>
+                                <p className="text-xl font-black text-white">{stats.total}</p>
+                            </div>
+                            <div className="glass-morphism p-4 rounded-3xl text-center border-cyan-500/10 shadow-lg">
+                                <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Kadar Lulus</p>
+                                <p className="text-xl font-black text-cyan-400">{stats.passRate}%</p>
+                            </div>
+                        </div>
+
+                        {/* Bell Curve */}
+                        <div className="glass-morphism p-6 rounded-[40px] border-emerald-500/10">
+                            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-4 flex items-center gap-2 italic">
+                                <i data-lucide="bar-chart-3" className="text-emerald-500 w-4 h-4"></i> Taburan Prestasi Kohort
+                            </h3>
+                            <div className="h-48">
+                                <BellCurveChart students={students} />
+                            </div>
+                        </div>
+
+                        {/* AI Summary */}
+                        <div className="glass-morphism p-6 rounded-[40px] border-blue-500/10 relative overflow-hidden bg-gradient-to-br from-slate-900/50 to-blue-950/20">
+                            <h3 className="text-xs font-black text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <i data-lucide="brain-circuit" className="w-4 h-4"></i> Cohort AI Report
+                            </h3>
+                            <p className="text-[10px] text-slate-300 leading-relaxed italic">
+                                "Analisis kohort menunjukkan kestabilan pada domain amali. {stats.avg > 75 ? 'Pencapaian luar biasa dikesan pada Siri 2.' : 'Bimbingan tambahan diperlukan untuk pemantapan sahsiah.'} Seramai {students.filter(s => parseFloat(s.marks.total) < 40).length} pelajar dikesan berisiko."
+                            </p>
+                        </div>
+
+                        {/* Full Searchable List */}
+                        <div className="space-y-3 pb-24">
+                            <div className="flex items-center justify-between px-2">
+                                <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">Pangkalan Data Pelajar</h3>
+                                <div className="relative w-32">
+                                    <i data-lucide="search" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600 w-3 h-3"></i>
+                                    <input value={search} onChange={e => setSearch(e.target.value)} className="bg-slate-900 border border-slate-800 rounded-lg py-1 pl-7 pr-2 text-[8px] text-white w-full outline-none focus:border-emerald-500" placeholder="Cari..." />
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                {filteredStudents.length > 0 ? filteredStudents.map((s, idx) => (
+                                    <div key={idx} className="glass-morphism p-4 rounded-[28px] flex items-center gap-4 border-slate-800/50 shadow-md">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                                            {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="text-slate-600 w-5 h-5"></i>}
+                                        </div>
+                                        <div className="flex-1 overflow-hidden">
+                                            <h4 className="text-[10px] font-black text-white uppercase truncate tracking-tight">{s.nama}</h4>
+                                            <p className="text-[7px] text-slate-500 uppercase">Selia: {s.assigned_lecturer || 'N/A'}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs font-black text-emerald-400">{s.marks.total}%</p>
+                                        </div>
+                                    </div>
+                                )) : <p className="text-center py-10 text-[10px] text-slate-600 italic">Tiada padanan pelajar dijumpai.</p>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- LECTURER & STUDENT COMPONENTS ---
+
+        const LoginView = ({ role, setRole, handleLogin, students, onQuickScan }) => {
+            const [scanCode, setScanCode] = useState('');
+            
+            const handleScan = (e) => {
+                const code = e.target.value.toUpperCase();
+                setScanCode(code);
+                const found = students.find(s => {
+                    const colorInitial = COLOR_MAP[s.kumpulan?.toUpperCase()];
+                    const tag = `${colorInitial}${s.no_kumpulan}`;
+                    return tag === code;
+                });
+                if (found) {
+                    onQuickScan(found);
+                    setScanCode('');
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center p-6 bg-[#020617]">
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md glass-morphism p-8 rounded-[40px] border-emerald-500/20 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4">
+                            <div className="relative w-24">
+                                <input value={scanCode} onChange={handleScan} className="w-full bg-emerald-500/10 border border-emerald-500/40 rounded-lg py-1.5 px-2 text-center text-[10px] font-black text-emerald-400 outline-none scan-pulse placeholder:text-emerald-500/30" placeholder="SCAN TAG" />
+                                <div className="absolute -bottom-4 w-full text-center text-[6px] text-slate-600 font-bold tracking-widest uppercase">Quick Merit</div>
+                            </div>
+                        </div>
+
+                        <div className="text-center mb-10 mt-6">
+                            <div className="inline-flex p-4 bg-emerald-500/10 rounded-2xl mb-4 border border-emerald-500/20">
+                                <i data-lucide="shield-check" className="text-emerald-500 w-10 h-10"></i>
+                            </div>
+                            <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">BIG Hub.</h2>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-3">Evaluation Terminal</p>
+                        </div>
+                        
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            <div className="flex p-1 bg-slate-800/40 rounded-xl border border-slate-700/50">
+                                <button type="button" onClick={() => setRole('staff')} className={`flex-1 py-3 text-[10px] font-black rounded-lg transition-all ${role === 'staff' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PENSYARAH</button>
+                                <button type="button" onClick={() => setRole('student')} className={`flex-1 py-3 text-[10px] font-black rounded-lg transition-all ${role === 'student' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PELAJAR</button>
+                            </div>
+                            {role === 'student' ? (
+                                <input name="ic" type="text" placeholder="Masukkan No. Kad Pengenalan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-5 text-white outline-none focus:border-emerald-500 text-center font-bold tracking-widest shadow-inner" required />
+                            ) : (
+                                <div className="space-y-4">
+                                    <input name="email" type="email" placeholder="E-mel Pensyarah" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 shadow-inner transition-all" required />
+                                    <input name="password" type="password" placeholder="Kata Laluan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 shadow-inner transition-all" required />
+                                </div>
+                            )}
+                            <button type="submit" className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:bg-emerald-400 active:scale-95 transition-all uppercase tracking-widest text-xs">Akses Sistem</button>
+                        </form>
+                    </motion.div>
+                </div>
+            );
+        };
 
         const LecturerDashboard = ({ currentUser, students, searchQuery, setSearchQuery, setSelectedStudent, setActiveEvalTab, onLogout }) => {
             const [fSiri, setFSiri] = useState('');
             const [fKelas, setFKelas] = useState('');
             const [fKump, setFKump] = useState('');
             const [fNo, setFNo] = useState('');
-            const [scanCode, setScanCode] = useState('');
 
             const filtered = useMemo(() => {
                 return students
@@ -218,66 +387,48 @@
                 return { siri: getUniq('siri'), kelas: getUniq('kelas'), kump: getUniq('kumpulan'), no: getUniq('no_kumpulan') };
             }, [students]);
 
-            const handleQuickScan = (e) => {
-                const code = e.target.value.toUpperCase();
-                setScanCode(code);
-                const found = students.find(s => {
-                    const colorInitial = COLOR_MAP[s.kumpulan?.toUpperCase()];
-                    const tag = `${colorInitial}${s.no_kumpulan}`;
-                    return tag === code;
-                });
-                if (found) {
-                    setSelectedStudent({...found});
-                    setActiveEvalTab('amali3');
-                    setScanCode('');
-                }
-            };
-
             return (
                 <div className="h-screen flex flex-col overflow-hidden bg-slate-950">
                     <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 shadow-2xl z-50">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-black italic text-slate-950 text-xs shadow-lg">BIG</div>
-                            <div><h1 className="font-black text-[9px] text-white uppercase tracking-widest leading-none">Lecturer HUB</h1><p className="text-[7px] text-emerald-500 font-bold truncate max-w-[120px]">{currentUser?.nama_pensyarah}</p></div>
+                            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-black italic text-slate-950 text-xs">BIG</div>
+                            <div><h1 className="font-black text-[10px] text-white uppercase tracking-widest leading-none">Lecturer HUB</h1><p className="text-[7px] text-emerald-500 font-bold truncate max-w-[150px]">{currentUser?.nama_pensyarah}</p></div>
                         </div>
-                        <div className="flex gap-2">
-                             <div className="relative w-24">
-                                <input value={scanCode} onChange={handleQuickScan} className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-lg py-1.5 px-2 text-center text-xs font-black text-emerald-400 outline-none scan-glow placeholder:text-emerald-500/50 uppercase" placeholder="SCAN TAG" />
-                             </div>
-                             <button onClick={onLogout} className="p-2 bg-slate-800 rounded-lg text-red-400 active:scale-90 transition-transform"><i data-lucide="log-out" className="w-4 h-4"></i></button>
-                        </div>
+                        <button onClick={onLogout} className="p-2.5 bg-slate-800 rounded-xl text-red-400 active:scale-90 transition-transform shadow-inner"><i data-lucide="log-out" className="w-4 h-4"></i></button>
                     </div>
 
                     <div className="p-4 bg-slate-900/40 border-b border-slate-800 shrink-0">
                         <div className="grid grid-cols-4 gap-1.5 mb-3">
                             <select value={fSiri} onChange={e => setFSiri(e.target.value)} className="filter-select"><option value="">Siri</option>{options.siri.map(v => <option key={v} value={v}>{v}</option>)}</select>
                             <select value={fKelas} onChange={e => setFKelas(e.target.value)} className="filter-select"><option value="">Kelas</option>{options.kelas.map(v => <option key={v} value={v}>{v}</option>)}</select>
-                            <select value={fKump} onChange={e => setFKump(e.target.value)} className="filter-select"><option value="">Kumpulan</option>{options.kump.map(v => <option key={v} value={v}>{v}</option>)}</select>
+                            <select value={fKump} onChange={e => setFKump(e.target.value)} className="filter-select"><option value="">Kump</option>{options.kump.map(v => <option key={v} value={v}>{v}</option>)}</select>
                             <select value={fNo} onChange={e => setFNo(e.target.value)} className="filter-select"><option value="">No</option>{options.no.map(v => <option key={v} value={v}>{v}</option>)}</select>
                         </div>
                         <div className="relative">
                             <i data-lucide="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-3 h-3"></i>
-                            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-2.5 pl-9 text-white focus:border-emerald-500 outline-none text-[10px]" placeholder="Cari nama pelajar..." />
+                            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-xl p-2.5 pl-9 text-white focus:border-emerald-500 outline-none text-[10px]" placeholder="Cari nama pelajar..." />
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-2 pb-24">
+                    <div className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-2 pb-24 bg-[#020617]">
                         {filtered.length > 0 ? filtered.map((s, idx) => (
                             <motion.div whileTap={{ scale: 0.98 }} key={idx} onClick={() => { setSelectedStudent({...s}); setActiveEvalTab('amali3'); }} className="glass-morphism p-3 rounded-2xl flex items-center gap-3 border-slate-800 active:border-emerald-500 transition-all shadow-md">
-                                <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-slate-700 shrink-0 shadow-lg flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-slate-700 shrink-0 flex items-center justify-center shadow-lg">
                                     {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="text-slate-700 w-5 h-5"></i>}
                                 </div>
                                 <div className="flex-1 overflow-hidden">
-                                    <h4 className="font-black text-white text-[11px] uppercase truncate mb-0.5 tracking-tight">{s.nama}</h4>
-                                    <p className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter opacity-80">{s.kelas} | Siri {s.siri || '?'}</p>
+                                    <h4 className="font-black text-white text-[11px] uppercase truncate mb-0.5">{s.nama}</h4>
+                                    <p className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter opacity-80">{s.kelas} | Siri {s.siri}</p>
                                 </div>
                                 <div className="text-right shrink-0">
                                     <p className="text-xs font-black text-emerald-400 leading-none">{s.marks.total}%</p>
-                                    <p className="text-[7px] font-bold text-slate-500 uppercase mt-0.5 tracking-widest leading-none">SCORE</p>
+                                    <p className="text-[7px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest opacity-40">Score</p>
                                 </div>
                             </motion.div>
                         )) : (
-                            <div className="py-20 text-center glass-morphism rounded-[40px] border-dashed border-slate-800 opacity-20 italic text-xs uppercase tracking-widest">Tiada rekod pelajar seliaan</div>
+                            <div className="py-20 text-center glass-morphism rounded-[40px] border-dashed border-slate-800 border-2">
+                                <p className="text-slate-700 font-black uppercase text-[10px] tracking-[0.4em] italic">No Records Found</p>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -297,92 +448,68 @@
                 const max = type === 'ind' ? 20 : 30;
                 const currentVal = parseFloat(student.marks[key]);
                 const newVal = Math.min(max, Math.max(0, currentVal + amount));
-                
-                setSelectedStudent(prev => ({
-                    ...prev,
-                    marks: { ...prev.marks, [key]: newVal.toString() }
-                }));
+                setSelectedStudent(prev => ({ ...prev, marks: { ...prev.marks, [key]: newVal.toString() } }));
             };
 
-            const RubricModal = ({ type }) => (
-                <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6" onClick={() => setShowRubric(false)}>
-                    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="glass-morphism p-6 rounded-[32px] w-full max-w-sm border-emerald-500/20 max-h-[80vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
-                        <h4 className="text-lg font-black mb-4 uppercase text-emerald-400 italic flex items-center gap-2"><i data-lucide="info" size={16}></i> Info Rubrik BIG</h4>
-                        <div className="space-y-4 text-[10px] text-slate-300 text-left leading-relaxed">
-                            {type === 'amali2' ? (
-                                <div><p className="font-bold text-white mb-1 underline text-[11px]">AMALI 2: PENYAMPAIAN (20%)</p><p>• HP4 (15m): Interpersonal & Kerjasama.</p><p>• HP5 (10m): Komunikasi, Bahasa & Adab.</p></div>
-                            ) : (
-                                <div><p className="font-bold text-white mb-1 underline text-[11px]">AMALI 3: KEPIMPINAN & PRAKTIKAL (45%)</p><p>• HP8 Ind (20m): Merit (+1) / Demerit (-1).</p><p>• HP8 Kum (30m): Merit (+1) / Demerit (-1).</p><p>• HP3 (25%): 6 Kriteria Amali Lapangan.</p></div>
-                            )}
-                        </div>
-                        <button onClick={() => setShowRubric(false)} className="w-full mt-6 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-xs uppercase shadow-lg shadow-emerald-500/30">Faham</button>
-                    </motion.div>
-                </div>
-            );
-
             return (
-                <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 250 }} className="fixed inset-0 z-50 bg-[#020617] flex flex-col h-full overflow-hidden text-center">
-                    {showRubric && <RubricModal type={activeTab} />}
-                    
-                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-4 shrink-0 shadow-2xl relative z-10">
-                        <button onClick={() => setSelectedStudent(null)} className="p-2.5 bg-slate-800 rounded-xl text-slate-400 shrink-0 border border-slate-700 active:scale-90"><i data-lucide="chevron-left" className="w-5 h-5"></i></button>
+                <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 250 }} className="fixed inset-0 z-50 bg-[#020617] flex flex-col h-full overflow-hidden">
+                    {/* GIANT PHOTO HEADER */}
+                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-5 shrink-0 shadow-2xl relative">
+                        <button onClick={() => setSelectedStudent(null)} className="p-2.5 bg-slate-800 rounded-xl text-slate-400 border border-slate-700 active:scale-90"><i data-lucide="chevron-left" className="w-5 h-5"></i></button>
                         
-                        <div className="w-20 h-20 rounded-[30px] bg-slate-800 overflow-hidden border-2 border-emerald-500/30 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5">
-                            {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="m-auto mt-5 text-slate-700 w-10 h-10"></i>}
+                        <div className="w-24 h-24 rounded-[36px] bg-slate-800 overflow-hidden border-4 border-emerald-500/20 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5">
+                            {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="m-auto mt-6 text-slate-700 w-12 h-12"></i>}
                         </div>
 
                         <div className="flex-1 overflow-hidden text-left">
-                            <h2 className="text-[14px] font-black text-white uppercase truncate leading-none mb-1 tracking-tight">{student.nama}</h2>
-                            <p className="text-[8px] font-bold text-slate-500 truncate mb-2 uppercase tracking-tighter opacity-70">{student.kelas} | Siri {student.siri}</p>
+                            <h2 className="text-[15px] font-black text-white uppercase truncate leading-none mb-1.5">{student.nama}</h2>
+                            <p className="text-[9px] font-bold text-slate-500 truncate mb-2 uppercase tracking-tighter opacity-70">{student.kelas} | Siri {student.siri}</p>
                             <div className="flex gap-2">
-                                <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-md shadow-inner"><p className="text-[6px] font-black text-slate-500 uppercase leading-none mb-0.5">HP8 IND</p><p className="text-[10px] font-black text-emerald-400 leading-none">{student.marks.hp8_ind}</p></div>
-                                <div className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-md shadow-inner"><p className="text-[6px] font-black text-slate-500 uppercase leading-none mb-0.5">HP8 KUM</p><p className="text-[10px] font-black text-blue-400 leading-none">{student.marks.hp8_kum}</p></div>
+                                <div className="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg shadow-inner"><p className="text-[6px] font-black text-slate-600 uppercase leading-none mb-0.5">HP8 IND</p><p className="text-[10px] font-black text-emerald-400 leading-none">{student.marks.hp8_ind}</p></div>
+                                <div className="px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded-lg shadow-inner"><p className="text-[6px] font-black text-slate-600 uppercase leading-none mb-0.5">HP8 KUM</p><p className="text-[10px] font-black text-blue-400 leading-none">{student.marks.hp8_kum}</p></div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="px-4 py-2.5 flex gap-2 bg-slate-900 border-b border-slate-800 shrink-0 z-10">
+                    <div className="px-4 py-2.5 flex gap-2 bg-slate-900 border-b border-slate-800 shrink-0 overflow-x-auto no-scrollbar">
                         {[{id:'amali3',icon:'activity',l:'AMALI 3'},{id:'amali2',icon:'layers',l:'AMALI 2'},{id:'kuiz',icon:'trophy',l:'KUIZ'}].map(t => (
-                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex-1 py-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === t.id ? 'tab-active' : 'bg-slate-800 text-slate-500 shadow-inner'}`}>
+                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex-1 min-w-[90px] py-3 rounded-2xl flex flex-col items-center gap-1 transition-all ${activeTab === t.id ? 'tab-active' : 'bg-slate-800 text-slate-500 shadow-inner'}`}>
                                 <i data-lucide={t.icon} className="w-3.5 h-3.5"></i>
-                                <span className="text-[8px] font-black uppercase tracking-tighter tracking-widest leading-none">{t.l}</span>
+                                <span className="text-[8px] font-black tracking-[0.2em] uppercase">{t.l}</span>
                             </button>
                         ))}
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar bg-slate-950">
+                    <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar bg-[#020617]">
                         {activeTab === 'amali3' && (
                             <div className="space-y-4 animate-in fade-in duration-300">
-                                <div className="flex justify-between items-center bg-slate-900/50 p-3 rounded-2xl border border-slate-800 shadow-inner">
-                                    <div className="flex items-center gap-2 text-emerald-400 font-black italic text-[9px] tracking-widest leading-none uppercase"><i data-lucide="activity" size={12}></i> HP3 & HP8 PENILAIAN (45%)</div>
-                                    <button onClick={() => setShowRubric(true)} className="p-1.5 bg-slate-800 rounded-lg text-emerald-500 border border-slate-700 shadow-lg active:scale-90"><i data-lucide="info" size={16}></i></button>
+                                <div className="flex justify-between items-center bg-slate-900/50 p-3 rounded-2xl border border-slate-800">
+                                    <div className="flex items-center gap-2 text-emerald-400 font-black italic text-[10px] tracking-widest"><i data-lucide="activity" size={14}></i> HP3 & HP8 Penilaian (45%)</div>
+                                    <span className="text-[9px] font-black text-emerald-500/50 uppercase tracking-widest">Wajaran: {hp3Wajaran}%</span>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-2">
-                                    <div className="p-3 glass-morphism rounded-2xl border-emerald-500/10 space-y-3 shadow-xl">
-                                        <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="user-check" size={10}/> HP8 INDIVIDU (MAX 20)</span><span className="text-lg font-black text-emerald-400 font-mono shadow-inner leading-none">{student.marks.hp8_ind}</span></div>
+                                <div className="space-y-3">
+                                    <div className="p-4 glass-morphism rounded-3xl border-emerald-500/10 space-y-4 shadow-xl">
+                                        <div className="flex justify-between items-center"><span className="text-[9px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="user-check" size={12}/> HP8 INDIVIDU (MAX 20)</span><span className="text-xl font-black text-emerald-400 font-mono shadow-inner">{student.marks.hp8_ind}</span></div>
                                         <div className="flex gap-2">
-                                            <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-lg font-black text-[9px] uppercase active:scale-95 transition-all shadow-lg">+ MERIT</button>
-                                            <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-lg font-black text-[9px] uppercase active:scale-95 transition-all shadow-lg">- DEMERIT</button>
+                                            <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all">+ MERIT</button>
+                                            <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all">- DEMERIT</button>
                                         </div>
                                     </div>
-                                    <div className="p-3 glass-morphism rounded-2xl border-blue-500/10 space-y-3 shadow-xl">
-                                        <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="users" size={10}/> HP8 KUMPULAN (MAX 30)</span><span className="text-lg font-black text-blue-400 font-mono shadow-inner leading-none">{student.marks.hp8_kum}</span></div>
+                                    <div className="p-4 glass-morphism rounded-3xl border-blue-500/10 space-y-4 shadow-xl">
+                                        <div className="flex justify-between items-center"><span className="text-[9px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="users" size={12}/> HP8 KUMPULAN (MAX 30)</span><span className="text-xl font-black text-blue-400 font-mono shadow-inner">{student.marks.hp8_kum}</span></div>
                                         <div className="flex gap-2">
-                                            <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-lg font-black text-[9px] uppercase active:scale-95 transition-all shadow-lg">+ MERIT</button>
-                                            <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-lg font-black text-[9px] uppercase active:scale-95 transition-all shadow-lg">- DEMERIT</button>
+                                            <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all">+ MERIT</button>
+                                            <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all">- DEMERIT</button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-1 mt-4 pt-4 border-t border-slate-800">
-                                    <div className="flex justify-between items-center mb-2 px-1 text-left">
-                                        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">KEMAHIRAN PRAKTIKAL (25%)</p>
-                                        <span className="text-[10px] font-black text-emerald-400 font-mono tracking-tighter leading-none">{hp3Wajaran}% WAJARAN</span>
-                                    </div>
+                                <div className="space-y-2 mt-4 pt-4 border-t border-slate-800">
+                                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3 px-2">KEMAHIRAN PRAKTIKAL (25%)</p>
                                     {["Kecergasan", "Pemakanan", "Kembara", "Keyakinan Air", "Rakit / Kayak", "Tali Tinggi"].map((label, idx) => (
                                         <div key={label} className="p-3 glass-morphism rounded-2xl border-slate-800/50 shadow-inner">
-                                            <div className="flex justify-between items-center mb-1.5"><span className="text-[9px] font-black text-white uppercase tracking-tighter">{idx+1}. {label}</span><span className="text-sm font-black text-emerald-500 font-mono leading-none">{student.marks.hp3_items[idx]}%</span></div>
+                                            <div className="flex justify-between items-center mb-1.5"><span className="text-[9px] font-black text-white uppercase tracking-tight">{idx+1}. {label}</span><span className="text-sm font-black text-emerald-500 font-mono">{student.marks.hp3_items[idx]}%</span></div>
                                             <input type="range" min="0" max="100" value={student.marks.hp3_items[idx]} onChange={e => {
                                                 const newM = [...student.marks.hp3_items];
                                                 newM[idx] = parseInt(e.target.value);
@@ -396,14 +523,10 @@
 
                         {activeTab === 'amali2' && (
                             <div className="space-y-4 animate-in fade-in duration-300">
-                                <div className="flex justify-between items-center mb-2 px-1">
-                                    <div className="flex items-center gap-2 text-emerald-400 font-black italic text-[10px] tracking-widest uppercase leading-none"><i data-lucide="layers" size={14}></i> Amali 2 (20%)</div>
-                                    <button onClick={() => setShowRubric(true)} className="p-1.5 bg-slate-800 rounded-lg text-emerald-500 border border-slate-700 shadow-xl active:scale-90"><i data-lucide="info" size={16}></i></button>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 gap-3 text-center">
                                     {[{k:'hp4',l:'HP4 (15)'},{k:'hp5',l:'HP5 (10)'}].map(item => (
-                                        <div key={item.k} className="p-6 glass-morphism rounded-[32px] border border-slate-800 text-center shadow-2xl">
-                                            <label className="text-[9px] font-black text-slate-500 uppercase block mb-3 tracking-widest leading-none text-center">{item.l}</label>
+                                        <div key={item.k} className="p-6 glass-morphism rounded-[32px] border border-slate-800 shadow-2xl">
+                                            <label className="text-[9px] font-black text-slate-500 uppercase block mb-3 tracking-widest leading-none">{item.l}</label>
                                             <input type="number" value={student.marks[item.k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [item.k]: e.target.value}}))} className="w-full bg-transparent text-center text-5xl font-black text-white outline-none focus:text-emerald-400 transition-colors" />
                                         </div>
                                     ))}
@@ -412,11 +535,10 @@
                         )}
 
                         {activeTab === 'kuiz' && (
-                            <div className="space-y-4 animate-in fade-in duration-300">
-                                <div className="flex items-center gap-2 text-emerald-400 font-black italic text-[10px] mb-2 px-2 tracking-widest leading-none uppercase"><i data-lucide="trophy" size={14}></i> KUIZ BERKALA (10%)</div>
+                            <div className="space-y-4 animate-in fade-in duration-300 px-2">
                                 {['kuiz1', 'kuiz2'].map(k => (
                                     <div key={k} className="p-8 glass-morphism rounded-[40px] text-center border-emerald-500/5 shadow-2xl">
-                                        <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3 block leading-none">{k.toUpperCase()}</label>
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3 block leading-none">{k.toUpperCase()}</label>
                                         <input type="number" value={student.marks[k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [k]: e.target.value}}))} className="w-full bg-transparent text-center text-7xl font-black text-white border-none outline-none focus:text-emerald-400 transition-colors" />
                                     </div>
                                 ))}
@@ -424,10 +546,10 @@
                         )}
                     </div>
 
-                    <div className="p-4 bg-slate-900 border-t border-slate-800 fixed bottom-0 w-full z-20 shrink-0 shadow-[0_-15px_40px_rgba(0,0,0,0.7)] rounded-t-[30px]">
-                        <button onClick={saveMarks} disabled={syncing} className="w-full py-5 rounded-[28px] bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center gap-3 shadow-[0_0_40px_rgba(16,185,129,0.5)] active:scale-95 transition-all uppercase tracking-widest">
+                    <div className="p-4 bg-slate-900 border-t border-slate-800 fixed bottom-0 w-full z-20 shrink-0 shadow-[0_-15px_40px_rgba(0,0,0,0.7)]">
+                        <button onClick={saveMarks} disabled={syncing} className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black text-sm flex items-center justify-center gap-3 shadow-[0_0_40px_rgba(16,185,129,0.5)] active:scale-95 transition-all uppercase tracking-[0.2em]">
                             {syncing ? <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <i data-lucide="save" className="w-4 h-4"></i>}
-                            SAHKAN & SIMPAN PEMARKAHAN
+                            SAHKAN & SIMPAN SEMUA
                         </button>
                     </div>
                 </motion.div>
@@ -435,61 +557,45 @@
         };
 
         const StudentPortal = ({ currentUser, onLogout, saveBiodata, syncing }) => {
-            const [formData, setFormData] = useState({
-                siri: currentUser.siri || '', 
-                kumpulan: currentUser.kumpulan || '', 
-                no_kumpulan: currentUser.no_kumpulan || '',
-                alahan: currentUser.alahan || '', 
-                tel_kecemasan: currentUser.tel_kecemasan || '', 
-                url_gambar: currentUser.url_gambar || '',
-                jawatan: currentUser.jawatan || ''
-            });
+            const [formData, setFormData] = useState({ siri: currentUser.siri || '', kumpulan: currentUser.kumpulan || '', no_kumpulan: currentUser.no_kumpulan || '', alahan: currentUser.alahan || '', tel_kecemasan: currentUser.tel_kecemasan || '', url_gambar: currentUser.url_gambar || '' });
             const handleChange = (field, val) => setFormData(prev => ({...prev, [field]: val}));
 
             return (
-                <div className="h-screen bg-[#020617] flex flex-col overflow-hidden relative">
-                    <div className="bg-emerald-500 p-8 flex flex-col items-center border-b border-emerald-600/30 shadow-2xl shrink-0 z-10 rounded-b-[40px]">
-                        <div className="w-24 h-24 bg-slate-950 rounded-[32px] p-1 mb-4 shadow-2xl overflow-hidden border-4 border-slate-950/20">
-                            {formData.url_gambar ? <img src={formData.url_gambar} className="w-full h-full object-cover" /> : <div className="p-8 text-emerald-500 bg-slate-900 w-full h-full flex items-center justify-center"><i data-lucide="user" className="w-full h-full"></i></div>}
+                <div className="min-h-screen flex items-center justify-center p-4 bg-[#020617] overflow-y-auto no-scrollbar">
+                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-lg glass-morphism rounded-[40px] overflow-hidden shadow-2xl my-4 border-emerald-500/10">
+                        <div className="bg-emerald-500 p-10 flex flex-col items-center">
+                            <div className="w-32 h-32 bg-slate-950 rounded-[45px] p-1 mb-6 shadow-2xl overflow-hidden border-4 border-slate-950/20">
+                                {formData.url_gambar ? <img src={formData.url_gambar} className="w-full h-full object-cover" /> : <div className="p-10 text-emerald-500 flex items-center justify-center"><i data-lucide="user" size={64}></i></div>}
+                            </div>
+                            <h2 className="text-2xl font-black text-slate-950 uppercase text-center leading-none italic tracking-tight">{currentUser?.nama}</h2>
+                            <p className="text-[9px] font-black text-slate-900/60 uppercase mt-3 tracking-[0.3em] bg-slate-950/10 px-3 py-1 rounded-full">BIG Participant Identity</p>
                         </div>
-                        <h2 className="text-xl font-black text-slate-950 uppercase text-center leading-none italic tracking-tight">{currentUser?.nama}</h2>
-                        <p className="text-[9px] font-black text-slate-900/60 uppercase mt-2 tracking-[0.4em] bg-white/20 px-4 py-1 rounded-full border border-slate-950/5">PELAJAR BIG 2026</p>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-6 pb-32 bg-slate-950">
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-morphism rounded-[35px] p-6 space-y-6 border-emerald-500/10 shadow-xl">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5"><label className="text-[8px] font-black text-emerald-500 uppercase px-1 tracking-widest leading-none">Siri BIG</label><input value={formData.siri} onChange={e => handleChange('siri', e.target.value)} className="form-input shadow-inner font-bold" placeholder="Cth: 2/2026" /></div>
-                                <div className="space-y-1.5"><label className="text-[8px] font-black text-emerald-500 uppercase px-1 tracking-widest leading-none">Kumpulan</label><select value={formData.kumpulan.toUpperCase()} onChange={e => handleChange('kumpulan', e.target.value)} className="form-input shadow-inner font-black uppercase text-center"><option value="">Pilih</option>{KUMPULAN_LIST.map(k => <option key={k} value={k}>{k}</option>)}</select></div>
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1"><label className="text-[8px] font-black text-slate-500 uppercase px-1">Siri BIG</label><input value={formData.siri} onChange={e => handleChange('siri', e.target.value)} className="form-input shadow-inner" placeholder="Siri..." /></div>
+                                <div className="space-y-1"><label className="text-[8px] font-black text-slate-500 uppercase px-1">Kumpulan</label><select value={formData.kumpulan.toUpperCase()} onChange={e => handleChange('kumpulan', e.target.value)} className="form-input appearance-none shadow-inner"><option value="">Pilih</option>{KUMPULAN_LIST.map(k => <option key={k} value={k}>{k}</option>)}</select></div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5"><label className="text-[8px] font-black text-emerald-500 uppercase px-1 tracking-widest leading-none">No. Ahli</label><input type="number" value={formData.no_kumpulan} onChange={e => handleChange('no_kumpulan', e.target.value)} className="form-input shadow-inner text-center font-black" placeholder="No..." /></div>
-                                <div className="space-y-1.5"><label className="text-[8px] font-black text-slate-500 uppercase px-1 tracking-widest leading-none opacity-50">Unit/Kelas</label><input value={currentUser.kelas} disabled className="form-input opacity-30 bg-slate-900 cursor-not-allowed font-bold" /></div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1"><label className="text-[8px] font-black text-slate-500 uppercase px-1">No. Ahli</label><input type="number" value={formData.no_kumpulan} onChange={e => handleChange('no_kumpulan', e.target.value)} className="form-input shadow-inner" /></div>
+                                <div className="space-y-1"><label className="text-[8px] font-black text-slate-500 uppercase px-1">Unit/Kelas</label><input value={currentUser.kelas} disabled className="form-input opacity-50 bg-slate-900 cursor-not-allowed" /></div>
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[8px] font-black text-emerald-500 uppercase px-1 tracking-widest leading-none uppercase">Jawatan BIG (Kolum N)</label>
-                                <input value={formData.jawatan} onChange={e => handleChange('jawatan', e.target.value)} className="form-input shadow-inner font-bold" placeholder="Cth: Pengerusi, Setiausaha, AJK..." />
-                            </div>
-                            <div className="space-y-1.5"><label className="text-[8px] font-black text-emerald-500 uppercase px-1 tracking-widest leading-none uppercase">Alahan Spesifik</label><input value={formData.alahan} onChange={e => handleChange('alahan', e.target.value)} className="form-input shadow-inner" placeholder="Nyatakan jika ada..." /></div>
-                            <div className="space-y-1.5"><label className="text-[8px] font-black text-emerald-500 uppercase px-1 tracking-widest leading-none uppercase">No. Tel Waris</label><input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input shadow-inner text-center font-mono" placeholder="01X-XXXXXXX" /></div>
-                            <div className="space-y-1.5"><label className="text-[8px] font-black text-emerald-500 uppercase px-1 tracking-widest leading-none uppercase">URL Gambar Profil</label><input value={formData.url_gambar} onChange={e => handleChange('url_gambar', e.target.value)} className="form-input text-[10px] shadow-inner font-mono truncate" placeholder="https://drive.google.com/..." /></div>
+                            <div className="space-y-1"><label className="text-[8px] font-black text-slate-500 uppercase px-1">Alahan Spesifik</label><input value={formData.alahan} onChange={e => handleChange('alahan', e.target.value)} className="form-input shadow-inner" /></div>
+                            <div className="space-y-1"><label className="text-[8px] font-black text-slate-500 uppercase px-1">No. Tel Waris</label><input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input shadow-inner" /></div>
+                            <div className="space-y-1"><label className="text-[8px] font-black text-slate-500 uppercase px-1">G-Drive Gambar Profil</label><input value={formData.url_gambar} onChange={e => handleChange('url_gambar', e.target.value)} className="form-input text-[10px] shadow-inner" placeholder="https://..." /></div>
                             
-                            <button onClick={onLogout} className="w-full py-4 text-[9px] font-black uppercase text-slate-500 tracking-[0.5em] border border-slate-800 rounded-2xl hover:bg-red-500/10 active:scale-95 transition-all mt-4">Tutup Sesi & Log Keluar</button>
-                        </motion.div>
-                    </div>
-
-                    {/* FIXED BOTTOM FOOTER - MOBILE UX FIX */}
-                    <div className="p-4 bg-slate-900 border-t border-slate-800 fixed bottom-0 w-full z-50 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] rounded-t-[40px]">
-                        <button onClick={() => saveBiodata(formData)} disabled={syncing} className="w-full py-5 bg-emerald-500 text-slate-950 font-black rounded-[25px] text-xs uppercase shadow-[0_0_40px_rgba(16,185,129,0.5)] active:scale-95 transition-all flex items-center justify-center gap-3">
-                            {syncing ? <div className="w-5 h-5 border-3 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <i data-lucide="save" className="w-5 h-5"></i>}
-                            KEMASKINI BIODATA CLOUD
-                        </button>
-                    </div>
+                            <div className="pt-3 flex flex-col gap-3">
+                                <button onClick={() => saveBiodata(formData)} disabled={syncing} className="w-full py-4 bg-emerald-500 text-slate-950 font-black rounded-2xl text-xs uppercase shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2 mt-4">
+                                    {syncing ? <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <i data-lucide="save" className="w-4 h-4"></i>} KEMASKINI BIODATA
+                                </button>
+                                <button onClick={onLogout} className="w-full py-3 text-[9px] font-black uppercase text-slate-500 tracking-[0.4em] border border-slate-800 rounded-xl hover:bg-red-500/5 transition-colors">Logout Session</button>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             );
         };
 
-        // --- MAIN APP ---
+        // --- MAIN APP COMPONENT ---
 
         function App() {
             const [view, setView] = useState('login');
@@ -511,7 +617,6 @@
                         fetch(`${CSV_LECTURERS_URL}&t=${Date.now()}`).then(r => r.text()),
                         fetch(`${CSV_MARKS_URL}&t=${Date.now()}`).then(r => r.text())
                     ]);
-
                     const pL = parseCSV(resL).filter(l => l.email);
                     const pM = parseCSV(resM);
                     const pS = parseCSV(resS).map(s => {
@@ -522,44 +627,41 @@
                             marks: {
                                 kuiz1: mD.kuiz1 || '0', kuiz2: mD.kuiz2 || '0',
                                 hp3_items: [70, 70, 70, 70, 70, 70],
-                                hp4: mD['hp4_(10%)'] || '10.5', 
-                                hp5: mD['hp5_(10%)'] || '7',    
-                                hp8_ind: mD['hp8_ind_(15%)'] || '14', 
-                                hp8_kum: mD['hp8_kum_(30%)'] || '21',
+                                hp4: mD['hp4_(10%)'] || '10.5', hp5: mD['hp5_(10%)'] || '7',    
+                                hp8_ind: mD['hp8_ind_(15%)'] || '14', hp8_kum: mD['hp8_kum_(30%)'] || '21',
                                 total: mD['jumlah_(100%)'] || '0'
                             }
                         };
                     }).filter(s => s.nama);
-
                     setStudents(pS);
                     setLecturers(pL);
-                } catch (e) { console.error("Sync Error:", e); }
+                } catch (e) { console.error("Sync Failure:", e); }
                 finally { setSyncing(false); setLoading(false); }
             }, []);
 
             useEffect(() => { fetchData(); }, [fetchData]);
 
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            });
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
 
             const handleLogin = (e) => {
                 e.preventDefault();
-                const ic = e.target.ic?.value.trim();
                 const email = e.target.email?.value.trim().toLowerCase();
                 const pass = e.target.password?.value.trim();
+                const ic = e.target.ic?.value.trim();
 
                 if (role === 'student') {
-                    // Gunakan perbandingan yang lebih longgar untuk mengelakkan ralat string/number
-                    const found = students.find(s => s.no_kp?.toString().trim() === ic);
+                    const found = students.find(s => s.no_kp === ic);
                     if (found) { setCurrentUser(found); setView('student_portal'); }
-                    else alert("Identiti pelajar (No. KP) tidak dikesan.");
+                    else alert("Identiti tidak ditemui.");
                 } else {
-                    const lect = lecturers.find(l => l.email?.toLowerCase() === email && l.password?.toString() === pass);
-                    if (lect) {
-                        setCurrentUser(lect);
-                        setView('lecturer_dashboard');
-                    } else alert("Emel atau Kata Laluan tidak sah.");
+                    if (email === ADMIN_EMAIL && (pass === '123456' || pass === '30621')) { // Password access as per sheet data
+                        setCurrentUser({ nama_pensyarah: 'Haniff Faizal', email: ADMIN_EMAIL });
+                        setView('admin_dashboard');
+                    } else {
+                        const lect = lecturers.find(l => l.email.toLowerCase() === email && l.password.toString() === pass);
+                        if (lect) { setCurrentUser(lect); setView('lecturer_dashboard'); }
+                        else alert("Kredensial tidak sah.");
+                    }
                 }
             };
 
@@ -581,36 +683,34 @@
                             }
                         })
                     });
-                    alert("Data Berjaya Disimpan ke Cloud!");
+                    alert("Data Cloud Disimpan!");
                     setSelectedStudent(null);
                     fetchData();
-                } catch (e) { alert("Ralat semasa menyimpan."); }
+                } catch (e) { alert("Ralat Server."); }
                 finally { setSyncing(false); }
             };
 
             const saveBiodata = async (formData) => {
                 setSyncing(true);
                 try {
-                    await fetch(GOOGLE_SHEET_API_URL, {
-                        method: 'POST', mode: 'no-cors',
-                        body: JSON.stringify({ target: 'biodata', no_kp: currentUser.no_kp, data: formData })
-                    });
-                    alert("Biodata dikemaskini secara rasmi!");
+                    await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ target: 'biodata', no_kp: currentUser.no_kp, data: formData }) });
+                    alert("Profil Pelajar Dikemaskini!");
                     fetchData();
-                } catch (e) { alert("Ralat semasa kemaskini."); }
+                } catch (e) { alert("Ralat."); }
                 finally { setSyncing(false); }
             };
 
             if (loading) return (
                 <div className="h-screen flex flex-col items-center justify-center gap-6 bg-[#020617]">
-                    <div className="w-12 h-12 border-4 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin shadow-2xl"></div>
-                    <p className="text-emerald-500 font-bold tracking-[0.4em] text-[10px] animate-pulse">MEMUAT PROTOKOL HUB...</p>
+                    <div className="w-12 h-12 border-4 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin"></div>
+                    <p className="text-emerald-500 font-bold tracking-[0.4em] text-[10px] animate-pulse uppercase">Syncing BIG Cloud...</p>
                 </div>
             );
 
             return (
                 <div className="selection:bg-emerald-500/30 overflow-hidden">
-                    {view === 'login' && <LoginView role={role} setRole={setRole} handleLogin={handleLogin} loadingData={syncing} />}
+                    {view === 'login' && <LoginView role={role} setRole={setRole} handleLogin={handleLogin} students={students} onQuickScan={(s) => { setSelectedStudent(s); setActiveEvalTab('amali3'); setView('lecturer_dashboard'); }} />}
+                    {view === 'admin_dashboard' && <AdminDashboard students={students} onLogout={onLogout} />}
                     {view === 'lecturer_dashboard' && (
                         <LecturerDashboard 
                             currentUser={currentUser} students={students} 
