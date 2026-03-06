@@ -40,8 +40,8 @@
         .giant-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             background: #10b981;
             border-radius: 50%;
             cursor: pointer;
@@ -143,12 +143,13 @@
                 let obj = {};
                 headers.forEach((h, i) => {
                     let key = h.replace(/ /g, '_');
-                    if (h === 'siri big' || h.includes('siri')) key = 'siri';
+                    // Pemetaan teguh berdasarkan visual sheet
+                    if (h.includes('siri_big') || h === 'siri big' || h.includes('siri')) key = 'siri';
                     else if (h.includes('nama_pelajar') || h === 'nama') key = 'nama';
                     else if (h.includes('no_kp')) key = 'no_kp';
                     else if (h.includes('url_gambar') || h === 'gambar') key = 'url_gambar';
                     else if (h.includes('pensyarah') || h.includes('pc_nsyarah')) key = 'nama_pensyarah';
-                    else if (h.includes('kumpulan_big') || h === 'kumpulan') key = 'kumpulan';
+                    else if (h.includes('kumpula') || h.includes('kumpulan')) key = 'kumpulan';
                     else if (h.includes('no_dalam_kumpulan') || h.includes('no_kumpulan')) key = 'no_kumpulan';
                     else if (h.includes('alahan')) key = 'alahan';
                     else if (h.includes('tel_kecemasan') || h.includes('kecemasan')) key = 'tel_kecemasan';
@@ -161,51 +162,12 @@
             });
         };
 
-        // --- ADMIN COMPONENTS ---
-
-        const BellCurveChart = ({ students }) => {
-            const canvasRef = useRef(null);
-            useEffect(() => {
-                if (!canvasRef.current || students.length === 0) return;
-                const scores = students.map(s => parseFloat(s.marks.total) || 0).filter(s => s > 0);
-                const labels = ['F', 'E', 'D', 'C', 'B', 'A'];
-                const dataPoints = Array(6).fill(0);
-                scores.forEach(score => {
-                    if (score < 40) dataPoints[0]++;
-                    else if (score < 50) dataPoints[1]++;
-                    else if (score < 60) dataPoints[2]++;
-                    else if (score < 70) dataPoints[3]++;
-                    else if (score < 80) dataPoints[4]++;
-                    else dataPoints[5]++;
-                });
-                const ctx = canvasRef.current.getContext('2d');
-                const chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Pelajar',
-                            data: dataPoints,
-                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                            borderColor: '#10b981',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true, display: false }, x: { grid: { display: false }, ticks: { color: '#64748b', font: { weight: 'bold' } } } }
-                    }
-                });
-                return () => chart.destroy();
-            }, [students]);
-            return <canvas ref={canvasRef} />;
-        };
+        // --- ADMIN DASHBOARD ---
 
         const AdminDashboard = ({ students, onLogout, onSelectStudent }) => {
             const [search, setSearch] = useState('');
             const stats = useMemo(() => {
-                const validMarks = students.map(s => parseFloat(s.marks.total) || 0).filter(m => m > 0);
+                const validMarks = students.map(s => parseFloat(s.marks?.total) || 0).filter(m => m > 0);
                 const avg = validMarks.length ? (validMarks.reduce((a,b) => a+b, 0) / validMarks.length).toFixed(1) : 0;
                 const passCount = validMarks.filter(m => m >= 40).length;
                 return { avg, total: students.length, passRate: ((passCount / (students.length || 1)) * 100).toFixed(0) };
@@ -235,21 +197,9 @@
                             <div className="glass-morphism p-3 rounded-2xl text-center border-cyan-500/10 shadow-lg"><p className="text-[6px] font-black text-slate-500 uppercase mb-1">Kadar Lulus</p><p className="text-lg font-black text-cyan-400">{stats.passRate}%</p></div>
                         </div>
 
-                        <div className="glass-morphism p-4 rounded-3xl border-emerald-500/5 shadow-xl">
-                            <h3 className="text-[8px] font-black text-white uppercase tracking-widest mb-2 flex items-center gap-2 italic"><i data-lucide="bar-chart-3" size={12} className="text-emerald-500"></i> Taburan Prestasi</h3>
-                            <div className="h-32"><BellCurveChart students={students} /></div>
-                        </div>
-
-                        <div className="glass-morphism p-4 rounded-3xl border-blue-500/5 bg-gradient-to-br from-slate-900/50 to-blue-950/10 shadow-xl">
-                            <h3 className="text-[8px] font-black text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i data-lucide="brain-circuit" size={12}></i> AI Dashboard Insights</h3>
-                            <p className="text-[9px] text-slate-400 leading-tight italic">
-                                "Kohort BIG 2026 menunjukkan trend {stats.avg > 70 ? 'kecemerlangan' : 'konsisten'}. Seramai {students.filter(s => parseFloat(s.marks.total) < 40).length} pelajar berisiko gred rendah dikesan bagi komponen amali."
-                            </p>
-                        </div>
-
                         <div className="space-y-2 pb-24">
                             <div className="flex items-center justify-between px-1">
-                                <h3 className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Senarai Pelajar (Semua)</h3>
+                                <h3 className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Senarai Pelajar (Penuh)</h3>
                                 <div className="relative w-36">
                                     <i data-lucide="search" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600 w-2.5 h-2.5"></i>
                                     <input value={search} onChange={e => setSearch(e.target.value)} className="bg-slate-900 border border-slate-800 rounded-lg py-1.5 pl-7 pr-2 text-[8px] text-white w-full outline-none focus:border-emerald-500 shadow-inner" placeholder="Cari Pelajar..." />
@@ -262,17 +212,14 @@
                                             {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="m-auto text-slate-700 w-4 h-4"></i>}
                                         </div>
                                         <div className="flex-1 overflow-hidden text-left">
-                                            <h4 className="text-[10px] font-black text-white uppercase truncate tracking-tight">{s.nama}</h4>
-                                            <p className="text-[7px] text-slate-500 uppercase font-bold tracking-tighter">Unit: {s.kelas} | Pensyarah: {s.assigned_lecturer}</p>
+                                            <h4 className="text-[10px] font-black text-white uppercase truncate tracking-tight leading-none">{s.nama}</h4>
+                                            <p className="text-[7px] text-slate-500 uppercase font-bold tracking-tighter">Unit: {s.kelas} | Siri: {s.siri}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <p className="text-[10px] font-black text-emerald-400">{s.marks.total}%</p>
-                                            <p className="text-[6px] text-slate-600 font-black uppercase">Gred</p>
+                                            <p className="text-[10px] font-black text-emerald-400">{s.marks?.total}%</p>
                                         </div>
                                     </div>
-                                )) : (
-                                    <div className="py-10 text-center text-[9px] text-slate-600 uppercase tracking-widest italic opacity-50">Data Pelajar Kosong</div>
-                                )}
+                                )) : <div className="py-10 text-center text-[9px] text-slate-600 uppercase tracking-widest italic opacity-50">Data Kosong</div>}
                             </div>
                         </div>
                     </div>
@@ -280,29 +227,36 @@
             );
         };
 
-        // --- LECTURER & STUDENT COMPONENTS ---
+        // --- LECTURER & STUDENT VIEWS ---
 
         const LoginView = ({ role, setRole, handleLogin, students, onQuickScan }) => {
             const [scanCode, setScanCode] = useState('');
-            const handleScan = (e) => {
-                const code = e.target.value.toUpperCase();
+            
+            const handleScanInput = (e) => {
+                const code = e.target.value.toUpperCase().trim();
                 setScanCode(code);
-                const found = students.find(s => {
-                    const colorInitial = COLOR_MAP[s.kumpulan?.toUpperCase()];
-                    const tag = `${colorInitial}${s.no_kumpulan}`;
-                    return tag === code;
-                });
-                if (found) { onQuickScan(found); setScanCode(''); }
+                
+                if (code.length >= 2) {
+                    const found = students.find(s => {
+                        const colorName = s.kumpulan?.toUpperCase();
+                        const colorInitial = COLOR_MAP[colorName] || colorName?.charAt(0);
+                        const tag = `${colorInitial}${s.no_kumpulan}`;
+                        return tag === code;
+                    });
+                    if (found) {
+                        onQuickScan(found);
+                        setScanCode('');
+                    }
+                }
             };
 
             return (
                 <div className="min-h-screen flex items-center justify-center p-6 bg-[#020617]">
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md glass-morphism p-8 rounded-[40px] border-emerald-500/20 shadow-2xl relative overflow-hidden">
-                        {/* QUICK SCAN AREA */}
                         <div className="absolute top-0 right-0 p-4 z-20">
                             <div className="relative w-20">
-                                <input value={scanCode} onChange={handleScan} className="w-full bg-emerald-500/10 border border-emerald-500/40 rounded-lg py-1 px-2 text-center text-[10px] font-black text-emerald-400 outline-none scan-pulse placeholder:text-emerald-500/30" placeholder="TAG ID" />
-                                <div className="absolute -bottom-4 w-full text-center text-[6px] text-slate-600 font-bold uppercase tracking-widest">Merit Scan</div>
+                                <input value={scanCode} onChange={handleScanInput} className="w-full bg-emerald-500/10 border border-emerald-500/40 rounded-lg py-1 px-2 text-center text-[10px] font-black text-emerald-400 outline-none scan-pulse placeholder:text-emerald-500/30" placeholder="TAG ID" />
+                                <div className="absolute -bottom-4 w-full text-center text-[6px] text-slate-600 font-bold uppercase tracking-widest">SCAN TAG</div>
                             </div>
                         </div>
 
@@ -311,7 +265,7 @@
                                 <i data-lucide="shield-check" className="text-emerald-500 w-10 h-10"></i>
                             </div>
                             <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase leading-none">BIG Hub.</h2>
-                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.4em] mt-3 border-t border-slate-800 pt-2 mx-10">Assessment Protocol</p>
+                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.4em] mt-3 border-t border-slate-800 pt-2 mx-10">Integrated Center</p>
                         </div>
                         
                         <form onSubmit={handleLogin} className="space-y-4">
@@ -320,10 +274,10 @@
                                 <button type="button" onClick={() => setRole('student')} className={`flex-1 py-2.5 text-[9px] font-black rounded-lg transition-all ${role === 'student' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PELAJAR</button>
                             </div>
                             {role === 'student' ? (
-                                <input name="ic" type="text" placeholder="No. Kad Pengenalan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 text-center font-bold tracking-widest shadow-inner text-sm" required />
+                                <input name="ic" type="text" placeholder="Masukkan No. Kad Pengenalan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 text-center font-bold tracking-widest shadow-inner text-sm" required />
                             ) : (
                                 <div className="space-y-3">
-                                    <input name="email" type="email" placeholder="E-mel IPGM" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-white outline-none focus:border-emerald-500 shadow-inner text-xs transition-all" required />
+                                    <input name="email" type="email" placeholder="Emel IPGM" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-white outline-none focus:border-emerald-500 shadow-inner text-xs transition-all" required />
                                     <input name="password" type="password" placeholder="Kata Laluan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-white outline-none focus:border-emerald-500 shadow-inner text-xs transition-all" required />
                                 </div>
                             )}
@@ -334,26 +288,32 @@
             );
         };
 
-        const LecturerDashboard = ({ currentUser, students, searchQuery, setSearchQuery, setSelectedStudent, setActiveEvalTab, onLogout }) => {
+        const LecturerDashboard = ({ currentUser, students, searchQuery, setSearchQuery, setSelectedStudent, setActiveEvalTab, onLogout, isAdmin }) => {
             const [fSiri, setFSiri] = useState('');
             const [fKelas, setFKelas] = useState('');
             const [fKump, setFKump] = useState('');
             const [fNo, setFNo] = useState('');
 
             const filtered = useMemo(() => {
-                return students
-                    .filter(s => s.assigned_lecturer?.trim().toLowerCase() === currentUser?.nama_pensyarah?.trim().toLowerCase())
+                let list = students;
+                // BUKAN ADMIN: Hanya lihat pelajar seliaan sendiri
+                if (!isAdmin) {
+                    list = list.filter(s => s.assigned_lecturer?.trim().toLowerCase() === currentUser?.nama_pensyarah?.trim().toLowerCase());
+                }
+                
+                return list
                     .filter(s => fSiri === '' || s.siri === fSiri)
                     .filter(s => fKelas === '' || s.kelas === fKelas)
                     .filter(s => fKump === '' || s.kumpulan === fKump)
                     .filter(s => fNo === '' || s.no_kumpulan === fNo)
                     .filter(s => s.nama.toLowerCase().includes(searchQuery.toLowerCase()));
-            }, [students, currentUser, searchQuery, fSiri, fKelas, fKump, fNo]);
+            }, [students, currentUser, searchQuery, fSiri, fKelas, fKump, fNo, isAdmin]);
 
             const options = useMemo(() => {
-                const getUniq = (key) => [...new Set(students.filter(s => s.assigned_lecturer?.trim().toLowerCase() === currentUser?.nama_pensyarah?.trim().toLowerCase()).map(s => s[key]).filter(v => v))].sort();
+                const list = isAdmin ? students : students.filter(s => s.assigned_lecturer?.trim().toLowerCase() === currentUser?.nama_pensyarah?.trim().toLowerCase());
+                const getUniq = (key) => [...new Set(list.map(s => s[key]).filter(v => v))].sort();
                 return { siri: getUniq('siri'), kelas: getUniq('kelas'), kump: getUniq('kumpulan'), no: getUniq('no_kumpulan') };
-            }, [students, currentUser]);
+            }, [students, currentUser, isAdmin]);
 
             return (
                 <div className="h-screen flex flex-col overflow-hidden bg-slate-950">
@@ -381,7 +341,7 @@
                     <div className="flex-1 overflow-y-auto no-scrollbar p-3 space-y-2 pb-24 bg-[#020617]">
                         {filtered.length > 0 ? filtered.map((s, idx) => (
                             <motion.div whileTap={{ scale: 0.98 }} key={idx} onClick={() => { setSelectedStudent({...s}); setActiveEvalTab('amali3'); }} className="glass-morphism p-3 rounded-2xl flex items-center gap-3 border-slate-800 active:border-emerald-500 transition-all shadow-md">
-                                <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-slate-700 shrink-0 flex items-center justify-center shadow-lg">
+                                <div className="w-12 h-12 rounded-xl bg-slate-800 overflow-hidden border border-slate-700 shrink-0 flex items-center justify-center">
                                     {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <i data-lucide="user" className="m-auto mt-3 text-slate-700 w-5 h-5"></i>}
                                 </div>
                                 <div className="flex-1 overflow-hidden text-left">
@@ -389,12 +349,12 @@
                                     <p className="text-[7px] font-bold text-emerald-500 uppercase tracking-tighter opacity-80 leading-none">{s.kelas} | Siri {s.siri}</p>
                                 </div>
                                 <div className="text-right shrink-0">
-                                    <p className="text-xs font-black text-emerald-400 leading-none">{s.marks.total}%</p>
+                                    <p className="text-xs font-black text-emerald-400 leading-none">{s.marks?.total}%</p>
                                     <p className="text-[6px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest opacity-40">Score</p>
                                 </div>
                             </motion.div>
                         )) : (
-                            <div className="py-20 text-center glass-morphism rounded-[30px] border-dashed border-slate-800 border-2 shadow-inner"><p className="text-slate-700 font-black uppercase text-[8px] tracking-[0.4em] italic leading-tight">No Records In Selection</p></div>
+                            <div className="py-20 text-center glass-morphism rounded-[30px] border-dashed border-slate-800 border-2 shadow-inner"><p className="text-slate-700 font-black uppercase text-[8px] tracking-[0.4em] italic leading-tight">Data Tidak Ditemui</p></div>
                         )}
                     </div>
                 </div>
@@ -417,17 +377,16 @@
 
             return (
                 <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 250 }} className="fixed inset-0 z-50 bg-[#020617] flex flex-col h-full overflow-hidden">
-                    {/* GIANT PHOTO HEADER */}
-                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-4 shrink-0 shadow-2xl relative z-10">
+                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-4 shrink-0 shadow-2xl relative z-10 text-center">
                         <button onClick={() => setSelectedStudent(null)} className="p-2 bg-slate-800 rounded-xl text-slate-400 border border-slate-700 active:scale-90 shrink-0 shadow-inner"><i data-lucide="chevron-left" size={20}></i></button>
-                        <div className="w-20 h-20 rounded-[30px] bg-slate-800 overflow-hidden border-4 border-emerald-500/20 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5">
-                            {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-950"><i data-lucide="user" size={32}></i></div>}
+                        <div className="w-24 h-24 rounded-[30px] bg-slate-800 overflow-hidden border-4 border-emerald-500/20 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5 mx-auto">
+                            {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-950"><i data-lucide="user" size={40}></i></div>}
                         </div>
                         <div className="flex-1 overflow-hidden text-left">
                             <h2 className="text-[13px] font-black text-white uppercase truncate mb-1 tracking-tight leading-none">{student.nama}</h2>
                             <p className="text-[8px] font-bold text-slate-500 truncate mb-2 uppercase opacity-70 leading-none">{student.kelas} | Siri {student.siri}</p>
                             <div className="flex gap-2">
-                                <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg shadow-sm"><p className="text-[5px] font-black text-slate-500 uppercase leading-none">IND</p><p className="text-[10px] font-black text-emerald-400 leading-none">{student.marks.hp8_ind}</p></div>
+                                <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg shadow-sm"><p className="text-[5px] font-black text-slate-500 uppercase leading-none">IND</p><p className="text-[9px] font-black text-emerald-400 leading-none">{student.marks.hp8_ind}</p></div>
                                 <div className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-lg shadow-sm"><p className="text-[5px] font-black text-slate-500 uppercase leading-none">KUM</p><p className="text-[10px] font-black text-blue-400 leading-none">{student.marks.hp8_kum}</p></div>
                             </div>
                         </div>
@@ -445,20 +404,18 @@
                     <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar bg-[#020617] relative z-0">
                         {activeTab === 'amali3' && (
                             <div className="space-y-4 animate-in fade-in duration-300">
-                                <div className="space-y-3">
-                                    <div className="p-4 glass-morphism rounded-3xl border-emerald-500/10 space-y-4 shadow-xl">
-                                        <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="user-check" size={12}/> HP8 INDIVIDU (MAX 20)</span><span className="text-xl font-black text-emerald-400 font-mono shadow-inner">{student.marks.hp8_ind}</span></div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">+ MERIT</button>
-                                            <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">- DEMERIT</button>
-                                        </div>
+                                <div className="p-4 glass-morphism rounded-3xl border-emerald-500/10 space-y-4 shadow-xl">
+                                    <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="user-check" size={12}/> HP8 INDIVIDU (MAX 20)</span><span className="text-xl font-black text-emerald-400 font-mono shadow-inner">{student.marks.hp8_ind}</span></div>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">+ MERIT</button>
+                                        <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">- DEMERIT</button>
                                     </div>
-                                    <div className="p-4 glass-morphism rounded-3xl border-blue-500/10 space-y-4 shadow-xl">
-                                        <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="users" size={12}/> HP8 KUMPULAN (MAX 30)</span><span className="text-xl font-black text-blue-400 font-mono shadow-inner">{student.marks.hp8_kum}</span></div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">+ MERIT</button>
-                                            <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">- DEMERIT</button>
-                                        </div>
+                                </div>
+                                <div className="p-4 glass-morphism rounded-3xl border-blue-500/10 space-y-4 shadow-xl">
+                                    <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2"><i data-lucide="users" size={12}/> HP8 KUMPULAN (MAX 30)</span><span className="text-xl font-black text-blue-400 font-mono shadow-inner">{student.marks.hp8_kum}</span></div>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">+ MERIT</button>
+                                        <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all">- DEMERIT</button>
                                     </div>
                                 </div>
 
@@ -524,15 +481,15 @@
                 <div className="min-h-screen flex items-center justify-center p-2 bg-[#020617] overflow-y-auto no-scrollbar">
                     <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-lg glass-morphism rounded-[40px] overflow-hidden shadow-2xl my-4 border-emerald-500/10">
                         <div className="bg-emerald-500 p-6 flex flex-col items-center shadow-lg">
-                            <div className="w-24 h-24 bg-slate-950 rounded-[35px] p-1 mb-4 shadow-2xl overflow-hidden border-4 border-slate-950/20">
-                                {formData.url_gambar ? <img src={formData.url_gambar} className="w-full h-full object-cover" /> : <div className="p-6 text-emerald-500 flex items-center justify-center"><i data-lucide="user" size={48}></i></div>}
+                            <div className="w-20 h-20 bg-slate-950 rounded-[30px] p-1 mb-3 shadow-2xl overflow-hidden border-4 border-slate-950/20">
+                                {formData.url_gambar ? <img src={formData.url_gambar} className="w-full h-full object-cover" /> : <div className="p-6 text-emerald-500 flex items-center justify-center"><i data-lucide="user" size={40}></i></div>}
                             </div>
                             <h2 className="text-xl font-black text-slate-950 uppercase text-center leading-none italic tracking-tight">{currentUser?.nama}</h2>
-                            <p className="text-[8px] font-black text-slate-900/60 uppercase mt-2 tracking-widest bg-slate-950/10 px-3 py-1 rounded-full">BIG Candidate 2026</p>
+                            <p className="text-[8px] font-black text-slate-900/60 uppercase mt-1 tracking-widest bg-slate-950/10 px-3 py-1 rounded-full">Identiti BIG 2026</p>
                         </div>
-                        <div className="p-5 space-y-3">
+                        <div className="p-4 space-y-3">
                             <div className="grid grid-cols-2 gap-2">
-                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Siri BIG</label><input value={formData.siri} onChange={e => handleChange('siri', e.target.value)} className="form-input shadow-inner" /></div>
+                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Siri BIG</label><input value={formData.siri} onChange={e => handleChange('siri', e.target.value)} className="form-input shadow-inner" placeholder="Cth: 2/2026" /></div>
                                 <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Kumpulan</label><select value={formData.kumpulan.toUpperCase()} onChange={e => handleChange('kumpulan', e.target.value)} className="form-input appearance-none shadow-inner"><option value="">Pilih</option>{KUMPULAN_LIST.map(k => <option key={k} value={k}>{k}</option>)}</select></div>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
@@ -540,16 +497,16 @@
                                 <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Unit/Kelas</label><input value={currentUser.kelas} disabled className="form-input opacity-50 bg-slate-900 cursor-not-allowed" /></div>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
-                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Alahan Spesifik</label><input value={formData.alahan} onChange={e => handleChange('alahan', e.target.value)} className="form-input shadow-inner text-[9px]" placeholder="Nyatakan..." /></div>
-                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">No. Tel Waris</label><input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input shadow-inner text-[9px]" placeholder="012-..." /></div>
+                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Alahan</label><input value={formData.alahan} onChange={e => handleChange('alahan', e.target.value)} className="form-input shadow-inner text-[9px]" placeholder="Nyatakan..." /></div>
+                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Tel Waris</label><input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input shadow-inner text-[9px]" placeholder="012-..." /></div>
                             </div>
-                            <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">URL Gambar Profil (Link Google Drive)</label><input value={formData.url_gambar} onChange={e => handleChange('url_gambar', e.target.value)} className="form-input text-[8px] shadow-inner font-mono" placeholder="https://..." /></div>
+                            <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Link G-Drive Gambar</label><input value={formData.url_gambar} onChange={e => handleChange('url_gambar', e.target.value)} className="form-input text-[8px] shadow-inner font-mono" placeholder="https://..." /></div>
                             
                             <div className="pt-2 space-y-2">
-                                <button onClick={() => saveBiodata(formData)} disabled={syncing} className="w-full py-3 bg-emerald-500 text-slate-950 font-black rounded-2xl text-[10px] uppercase shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <button onClick={() => saveBiodata(formData)} disabled={syncing} className="w-full py-3 bg-emerald-500 text-slate-950 font-black rounded-xl text-[10px] uppercase shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
                                     {syncing ? <div className="w-3 h-3 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <i data-lucide="save" size={14}></i>} KEMASKINI BIODATA CLOUD
                                 </button>
-                                <button onClick={onLogout} className="w-full py-2 text-[8px] font-black uppercase text-slate-500 tracking-[0.4em] border border-slate-800/50 rounded-xl hover:bg-red-500/5 transition-colors">TUTUP PROTOKOL</button>
+                                <button onClick={onLogout} className="w-full py-2 text-[8px] font-black uppercase text-slate-500 tracking-[0.4em] border border-slate-800/50 rounded-xl hover:bg-red-500/5 transition-colors">TUTUP AKSES</button>
                             </div>
                         </div>
                     </motion.div>
@@ -614,49 +571,69 @@
                 if (role === 'student') {
                     const found = students.find(s => s.no_kp === ic);
                     if (found) { setCurrentUser(found); setView('student_portal'); }
-                    else alert("ID Pelajar tidak dikesan dalam pangkalan data.");
+                    else alert("ID Pelajar tidak dikesan.");
                 } else {
+                    // Cek Admin (Ketua Unit)
                     if (email === ADMIN_EMAIL && (pass === '123456' || pass === '30621')) {
                         setCurrentUser({ nama_pensyarah: 'Haniff Faizal', email: ADMIN_EMAIL });
+                        setRole('admin');
                         setView('admin_dashboard');
                     } else {
                         const lect = lecturers.find(l => l.email.toLowerCase() === email && l.password.toString() === pass);
-                        if (lect) { setCurrentUser(lect); setView('lecturer_dashboard'); }
-                        else alert("Emel atau Kata Laluan tidak sah.");
+                        if (lect) { 
+                            setCurrentUser(lect); 
+                            setRole('staff');
+                            setView('lecturer_dashboard'); 
+                        }
+                        else alert("Akses Ditolak. Sila semak emel/kata laluan.");
                     }
                 }
             };
 
-            const onLogout = () => { setView('login'); setCurrentUser(null); setSelectedStudent(null); };
+            const onLogout = () => { setView('login'); setCurrentUser(null); setSelectedStudent(null); setRole('staff'); };
 
             const saveMarks = async () => {
+                if (!selectedStudent) return;
                 setSyncing(true);
                 const hp3_w = (selectedStudent.marks.hp3_items.reduce((a, b) => a + b, 0) / 600) * 25;
                 try {
+                    const payload = {
+                        target: 'markah',
+                        no_kp: selectedStudent.no_kp,
+                        data: {
+                            'Kuiz1': selectedStudent.marks.kuiz1,
+                            'Kuiz2': selectedStudent.marks.kuiz2,
+                            'HP4 (10%)': selectedStudent.marks.hp4,
+                            'HP5 (10%)': selectedStudent.marks.hp5,
+                            'HP8 Ind (15%)': selectedStudent.marks.hp8_ind,
+                            'HP8 Kum (30%)': selectedStudent.marks.hp8_kum,
+                            'HP3 (25%)': hp3_w.toFixed(2)
+                        }
+                    };
+                    
                     await fetch(GOOGLE_SHEET_API_URL, {
-                        method: 'POST', mode: 'no-cors',
-                        body: JSON.stringify({
-                            target: 'markah', no_kp: selectedStudent.no_kp,
-                            data: {
-                                'Kuiz1': selectedStudent.marks.kuiz1, 'Kuiz2': selectedStudent.marks.kuiz2,
-                                'HP4 (10%)': selectedStudent.marks.hp4, 'HP5 (10%)': selectedStudent.marks.hp5,
-                                'HP8 Ind (15%)': selectedStudent.marks.hp8_ind, 'HP8 Kum (30%)': selectedStudent.marks.hp8_kum,
-                                'HP3 (25%)': hp3_w.toFixed(2)
-                            }
-                        })
+                        method: 'POST',
+                        body: JSON.stringify(payload)
                     });
-                    alert("Data Pemarkahan Berjaya Dihantar!");
+                    
+                    alert("Berjaya Disimpan ke Google Sheets!");
                     setSelectedStudent(null);
                     fetchData();
-                } catch (e) { alert("Ralat Server."); }
-                finally { setSyncing(false); }
+                } catch (e) { 
+                    alert("Ralat Cloud. Pastikan Web App Script anda aktif."); 
+                } finally { setSyncing(false); }
             };
 
             const saveBiodata = async (formData) => {
                 setSyncing(true);
                 try {
-                    await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ target: 'biodata', no_kp: currentUser.no_kp, data: formData }) });
-                    alert("Profil Pelajar Dikemaskini!");
+                    const payload = {
+                        target: 'biodata',
+                        no_kp: currentUser.no_kp,
+                        data: formData
+                    };
+                    await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    alert("Profil Dikemaskini!");
                     fetchData();
                 } catch (e) { alert("Ralat Kemaskini."); }
                 finally { setSyncing(false); }
@@ -665,15 +642,17 @@
             const handleQuickScan = (student) => {
                 setSelectedStudent(student);
                 setActiveEvalTab('amali3');
-                // Ensure a session exists even if just scanning
-                if (!currentUser) setCurrentUser({ nama_pensyarah: student.assigned_lecturer || 'Pemerhati Tag' });
+                if (!currentUser) {
+                    setCurrentUser({ nama_pensyarah: student.assigned_lecturer || 'Pemerhati Tag' });
+                    setRole('staff');
+                }
                 setView('lecturer_dashboard'); 
             };
 
             if (loading) return (
                 <div className="h-screen flex flex-col items-center justify-center gap-6 bg-[#020617]">
                     <div className="w-10 h-10 border-4 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin shadow-2xl"></div>
-                    <p className="text-emerald-500 font-bold tracking-[0.4em] text-[8px] animate-pulse">BIG HUB SYNCING...</p>
+                    <p className="text-emerald-500 font-bold tracking-[0.4em] text-[8px] animate-pulse">MEMUAT PANGKALAN DATA...</p>
                 </div>
             );
 
@@ -686,7 +665,8 @@
                             currentUser={currentUser} students={students} 
                             searchQuery={searchQuery} setSearchQuery={setSearchQuery} 
                             setSelectedStudent={setSelectedStudent} setActiveEvalTab={setActiveEvalTab} 
-                            onLogout={onLogout} 
+                            onLogout={onLogout}
+                            isAdmin={role === 'admin'}
                         />
                     )}
                     {view === 'student_portal' && <StudentPortal currentUser={currentUser} onLogout={onLogout} saveBiodata={saveBiodata} syncing={syncing} />}
