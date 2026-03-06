@@ -35,7 +35,7 @@
             background: #1e293b;
             border-radius: 10px;
             outline: none;
-            margin: 8px 0;
+            margin: 10px 0;
             border: 1px solid #334155;
         }
 
@@ -156,20 +156,18 @@
                 let obj = {};
                 headers.forEach((h, i) => {
                     const val = values[i] || '';
-                    const lowH = h.toLowerCase();
+                    const lowH = h.toLowerCase().trim();
                     
-                    if (lowH.includes('nama_pelajar') || lowH === 'nama' || lowH.includes('nama pelajar')) obj.nama = val;
-                    else if (lowH.includes('no_kp') || lowH === 'kad pengenalan') obj.no_kp = val;
-                    else if (lowH.includes('url gambar') || lowH.includes('gambar')) obj.url_gambar = val;
-                    else if (lowH.includes('pensyarah')) obj.assigned_lecturer = val;
-                    else if (lowH.includes('siri')) obj.siri = val;
-                    else if (lowH.includes('kumpulan')) obj.kumpulan = val;
-                    else if (lowH.includes('no dalam kumpulan') || lowH.includes('no_kumpulan')) obj.no_kumpulan = val;
-                    else if (lowH.includes('kelas') || lowH.includes('unit')) obj.kelas = val;
-                    else if (lowH.includes('alahan')) obj.alahan = val;
-                    else if (lowH.includes('tel_kecemasan') || lowH.includes('no tel kecemasan')) obj.tel_kecemasan = val;
+                    if (lowH === 'nama_pelajar' || lowH === 'nama pelajar') obj.nama = val;
+                    else if (lowH === 'no_kp' || lowH === 'kad pengenalan') obj.no_kp = val.toString().trim();
+                    else if (lowH.includes('url gambar') || lowH === 'gambar') obj.url_gambar = val;
+                    else if (lowH === 'nama_pensyarah') obj.assigned_lecturer = val;
+                    else if (lowH === 'siri big') obj.siri = val;
+                    else if (lowH === 'kumpulan big') obj.kumpulan = val;
+                    else if (lowH === 'no dalam kumpulan') obj.no_kumpulan = val;
+                    else if (lowH === 'kelas') obj.kelas = val;
                     
-                    // Markah - Kolum khusus
+                    // Markah mapping
                     if (h === 'Kuiz1') obj.val_kuiz1 = val;
                     if (h === 'Kuiz2') obj.val_kuiz2 = val;
                     if (h === 'HP4 (10%)') obj.val_hp4 = val;
@@ -219,7 +217,7 @@
                                 return tag === code;
                             });
 
-                            // Logik 2: Cari mengikut No_KP (jika kod dalam QR adalah No_KP)
+                            // Logik 2: Cari mengikut No_KP
                             if (!found) {
                                 found = students.find(s => s.no_kp === code);
                             }
@@ -270,7 +268,7 @@
                             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-black italic text-slate-950 text-xs shadow-lg">BIG</div>
                             <div>
                                 <h1 className="font-black text-[10px] text-white uppercase tracking-widest leading-none">Admin Terminal</h1>
-                                <p className="text-[7px] text-emerald-500 font-bold uppercase">En. Haniff Faizal</p>
+                                <p className="text-[7px] text-emerald-400 font-bold uppercase">En. Haniff Faizal</p>
                             </div>
                         </div>
                         <button onClick={onLogout} className="p-2 bg-slate-800 rounded-lg text-red-400 active:scale-90"><Icon name="log-out" size={16}/></button>
@@ -301,7 +299,7 @@
                                             <p className="text-[7px] text-slate-500 uppercase font-bold">Unit: {s.kelas} | Siri: {s.siri}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <p className="text-[10px] font-black text-emerald-400">{s.val_total}%</p>
+                                            <p className="text-[10px] font-black text-emerald-400">{s.val_total || s.marks?.total}%</p>
                                         </div>
                                     </div>
                                 ))}
@@ -429,7 +427,7 @@
                                     <p className="text-[7px] font-bold text-emerald-500 uppercase tracking-tighter opacity-80 leading-none">{s.kelas} | Siri {s.siri}</p>
                                 </div>
                                 <div className="text-right shrink-0">
-                                    <p className="text-xs font-black text-emerald-400 leading-none">{s.marks?.total || s.val_total}%</p>
+                                    <p className="text-xs font-black text-emerald-400 leading-none">{s.val_total || s.marks?.total}%</p>
                                     <p className="text-[6px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest opacity-40 leading-none">Score</p>
                                 </div>
                             </motion.div>
@@ -440,6 +438,8 @@
         };
 
         const EvaluationPanel = ({ student, activeTab, setActiveTab, setSelectedStudent, saveMarks, syncing }) => {
+            const [isSuccess, setIsSuccess] = useState(false);
+
             const hp3Wajaran = useMemo(() => {
                 const totalRaw = (student.marks?.hp3_items || [70,70,70,70,70,70]).reduce((a, b) => a + b, 0);
                 return ((totalRaw / 600) * 25).toFixed(2);
@@ -453,100 +453,124 @@
                 setSelectedStudent(prev => ({ ...prev, marks: { ...prev.marks, [key]: newVal.toString() } }));
             };
 
+            const handleSave = async () => {
+                const success = await saveMarks();
+                if (success) setIsSuccess(true);
+            };
+
             return (
-                <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 250 }} className="fixed inset-0 z-50 bg-[#020617] flex flex-col h-full overflow-hidden text-center">
-                    <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-4 shrink-0 shadow-2xl relative z-10 text-center">
-                        <button onClick={() => setSelectedStudent(null)} className="p-2 bg-slate-800 rounded-xl text-slate-400 border border-slate-700 active:scale-90 shrink-0 shadow-inner"><Icon name="chevron-left" size={20}/></button>
-                        <div className="w-24 h-24 rounded-[30px] bg-slate-800 overflow-hidden border-4 border-emerald-500/20 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5 mx-auto">
-                            {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-950"><Icon name="user" size={40}/></div>}
-                        </div>
-                        <div className="flex-1 overflow-hidden text-left">
-                            <h2 className="text-[13px] font-black text-white uppercase truncate mb-1 tracking-tight leading-none font-bold">{student.nama}</h2>
-                            <p className="text-[8px] font-bold text-slate-500 truncate mb-2 uppercase opacity-70 leading-none">{student.kelas} | Siri {student.siri}</p>
-                            <div className="flex gap-2">
-                                <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg shadow-sm"><p className="text-[5px] font-black text-slate-500 uppercase leading-none">IND</p><p className="text-[9px] font-black text-emerald-400 leading-none">{student.marks.hp8_ind}</p></div>
-                                <div className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-lg shadow-sm"><p className="text-[5px] font-black text-slate-500 uppercase leading-none">KUM</p><p className="text-[10px] font-black text-blue-400 leading-none">{student.marks.hp8_kum}</p></div>
+                <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30, stiffness: 250 }} className="fixed inset-0 z-50 bg-[#020617] flex flex-col h-full overflow-hidden">
+                    
+                    {isSuccess ? (
+                        <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
+                            <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 animate-bounce">
+                                <Icon name="check-circle" size={60} className="text-emerald-500" />
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="px-4 py-2 flex gap-2 bg-slate-900 border-b border-slate-800 shrink-0 overflow-x-auto no-scrollbar z-10">
-                        {[{id:'amali3',icon:'activity',l:'AMALI 3'},{id:'amali2',icon:'layers',l:'AMALI 2'},{id:'kuiz',icon:'trophy',l:'KUIZ'}].map(t => (
-                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex-1 min-w-[80px] py-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === t.id ? 'tab-active' : 'bg-slate-800 text-slate-500 shadow-inner'}`}>
-                                <Icon name={t.icon} size={14}/>
-                                <span className="text-[8px] font-black tracking-widest uppercase leading-none">{t.l}</span>
+                            <h2 className="text-2xl font-black text-white uppercase mb-2">Berjaya Disimpan!</h2>
+                            <p className="text-slate-500 text-sm mb-8">Data pemarkahan bagi {student.nama} telah dihantar ke Cloud.</p>
+                            <button 
+                                onClick={() => { setIsSuccess(false); setSelectedStudent(null); }}
+                                className="px-10 py-4 bg-emerald-500 text-slate-950 font-black rounded-2xl shadow-xl active:scale-95 transition-all flex items-center gap-2"
+                            >
+                                <Icon name="arrow-left" size={18}/> KEMBALI KE SENARAI
                             </button>
-                        ))}
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar bg-[#020617] relative z-0 text-left">
-                        {activeTab === 'amali3' && (
-                            <div className="space-y-4 animate-in fade-in duration-300">
-                                <div className="p-4 glass-morphism rounded-3xl border-emerald-500/10 space-y-4 shadow-xl text-left">
-                                    <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2 font-bold"><Icon name="user-check" size={12}/> HP8 INDIVIDU (MAX 20)</span><span className="text-xl font-black text-emerald-400 font-mono shadow-inner">{student.marks.hp8_ind}</span></div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">+ MERIT</button>
-                                        <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">- DEMERIT</button>
-                                    </div>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-4 shrink-0 shadow-2xl relative z-10 text-center">
+                                <button onClick={() => setSelectedStudent(null)} className="p-2 bg-slate-800 rounded-xl text-slate-400 border border-slate-700 active:scale-90 shrink-0 shadow-inner"><Icon name="chevron-left" size={20}/></button>
+                                <div className="w-24 h-24 rounded-[30px] bg-slate-800 overflow-hidden border-4 border-emerald-500/20 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5 mx-auto">
+                                    {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-950"><Icon name="user" size={40}/></div>}
                                 </div>
-                                <div className="p-4 glass-morphism rounded-3xl border-blue-500/10 space-y-4 shadow-xl text-left">
-                                    <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2 font-bold"><Icon name="users" size={12}/> HP8 KUMPULAN (MAX 30)</span><span className="text-xl font-black text-blue-400 font-mono shadow-inner">{student.marks.hp8_kum}</span></div>
+                                <div className="flex-1 overflow-hidden text-left">
+                                    <h2 className="text-[13px] font-black text-white uppercase truncate mb-1 tracking-tight leading-none font-bold">{student.nama}</h2>
+                                    <p className="text-[8px] font-bold text-slate-500 truncate mb-2 uppercase opacity-70 leading-none">{student.kelas} | Siri {student.siri}</p>
                                     <div className="flex gap-2">
-                                        <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">+ MERIT</button>
-                                        <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">- DEMERIT</button>
+                                        <div className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg shadow-sm"><p className="text-[5px] font-black text-slate-500 uppercase leading-none">IND</p><p className="text-[9px] font-black text-emerald-400 leading-none">{student.marks.hp8_ind}</p></div>
+                                        <div className="px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded-lg shadow-sm"><p className="text-[5px] font-black text-slate-500 uppercase leading-none">KUM</p><p className="text-[10px] font-black text-blue-400 leading-none">{student.marks.hp8_kum}</p></div>
                                     </div>
-                                </div>
-
-                                <div className="space-y-2 mt-4 pt-4 border-t border-slate-800">
-                                    <div className="flex justify-between items-center mb-3 px-2">
-                                        <p className="text-[7px] font-black text-slate-500 uppercase tracking-[0.4em]">AMALI PRAKTIKAL (25%)</p>
-                                        <span className="text-[9px] font-black text-emerald-400 font-mono leading-none">{hp3Wajaran}%</span>
-                                    </div>
-                                    {["Kecergasan", "Pemakanan", "Kembara", "Keyakinan Air", "Rakit / Kayak", "Tali Tinggi"].map((label, idx) => (
-                                        <div key={label} className="p-3 glass-morphism rounded-2xl border-slate-800/50 shadow-inner">
-                                            <div className="flex justify-between items-center mb-1.5"><span className="text-[8px] font-black text-white uppercase tracking-tight text-left flex-1 font-bold">{idx+1}. {label}</span><span className="text-sm font-black text-emerald-500 font-mono">{student.marks.hp3_items[idx]}%</span></div>
-                                            <input type="range" min="0" max="100" value={student.marks.hp3_items[idx]} onChange={e => {
-                                                const newM = [...student.marks.hp3_items];
-                                                newM[idx] = parseInt(e.target.value);
-                                                setSelectedStudent(prev => ({...prev, marks: {...prev.marks, hp3_items: newM}}));
-                                            }} className="giant-slider" />
-                                        </div>
-                                    ))}
                                 </div>
                             </div>
-                        )}
 
-                        {activeTab === 'amali2' && (
-                            <div className="space-y-4 animate-in fade-in duration-300">
-                                <div className="grid grid-cols-2 gap-3 text-center">
-                                    {[{k:'hp4',l:'HP4 (15)'},{k:'hp5',l:'HP5 (10)'}].map(item => (
-                                        <div key={item.k} className="p-6 glass-morphism rounded-3xl border border-slate-800 shadow-2xl">
-                                            <label className="text-[8px] font-black text-slate-500 uppercase block mb-3 tracking-widest leading-none font-bold">{item.l}</label>
-                                            <input type="number" value={student.marks[item.k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [item.k]: e.target.value}}))} className="w-full bg-transparent text-center text-4xl font-black text-white outline-none focus:text-emerald-400 shadow-inner" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'kuiz' && (
-                            <div className="space-y-4 animate-in fade-in duration-300 px-2">
-                                {['kuiz1', 'kuiz2'].map(k => (
-                                    <div key={k} className="p-8 glass-morphism rounded-[40px] text-center border-emerald-500/5 shadow-2xl">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3 block leading-none font-bold font-black">{k.toUpperCase()}</label>
-                                        <input type="number" value={student.marks[k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [k]: e.target.value}}))} className="w-full bg-transparent text-center text-7xl font-black text-white border-none outline-none focus:text-emerald-400 shadow-inner font-black" />
-                                    </div>
+                            <div className="px-4 py-2 flex gap-2 bg-slate-900 border-b border-slate-800 shrink-0 overflow-x-auto no-scrollbar z-10">
+                                {[{id:'amali3',icon:'activity',l:'AMALI 3'},{id:'amali2',icon:'layers',l:'AMALI 2'},{id:'kuiz',icon:'trophy',l:'KUIZ'}].map(t => (
+                                    <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex-1 min-w-[80px] py-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === t.id ? 'tab-active' : 'bg-slate-800 text-slate-500 shadow-inner'}`}>
+                                        <Icon name={t.icon} size={14}/>
+                                        <span className="text-[8px] font-black tracking-widest uppercase leading-none">{t.l}</span>
+                                    </button>
                                 ))}
                             </div>
-                        )}
-                    </div>
 
-                    <div className="p-4 bg-slate-900 border-t border-slate-800 fixed bottom-0 w-full z-20 shrink-0 shadow-[0_-15px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl">
-                        <button onClick={saveMarks} disabled={syncing} className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-95 transition-all uppercase tracking-widest leading-none font-bold font-black">
-                            {syncing ? <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <Icon name="save" size={16}/>}
-                            SIMPAN PEMARKAHAN CLOUD
-                        </button>
-                    </div>
+                            <div className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar bg-[#020617] relative z-0 text-left">
+                                {activeTab === 'amali3' && (
+                                    <div className="space-y-4 animate-in fade-in duration-300">
+                                        <div className="p-4 glass-morphism rounded-3xl border-emerald-500/10 space-y-4 shadow-xl">
+                                            <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2 font-bold"><Icon name="user-check" size={12}/> HP8 INDIVIDU (MAX 20)</span><span className="text-xl font-black text-emerald-400 font-mono shadow-inner">{student.marks.hp8_ind}</span></div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">+ MERIT</button>
+                                                <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">- DEMERIT</button>
+                                            </div>
+                                        </div>
+                                        <div className="p-4 glass-morphism rounded-3xl border-blue-500/10 space-y-4 shadow-xl text-left">
+                                            <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2 font-bold"><Icon name="users" size={12}/> HP8 KUMPULAN (MAX 30)</span><span className="text-xl font-black text-blue-400 font-mono shadow-inner">{student.marks.hp8_kum}</span></div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">+ MERIT</button>
+                                                <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">- DEMERIT</button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2 mt-4 pt-4 border-t border-slate-800">
+                                            <div className="flex justify-between items-center mb-3 px-2">
+                                                <p className="text-[7px] font-black text-slate-500 uppercase tracking-[0.4em]">AMALI PRAKTIKAL (25%)</p>
+                                                <span className="text-[9px] font-black text-emerald-400 font-mono leading-none">{hp3Wajaran}%</span>
+                                            </div>
+                                            {["Kecergasan", "Pemakanan", "Kembara", "Keyakinan Air", "Rakit / Kayak", "Tali Tinggi"].map((label, idx) => (
+                                                <div key={label} className="p-3 glass-morphism rounded-2xl border-slate-800/50 shadow-inner">
+                                                    <div className="flex justify-between items-center mb-1.5"><span className="text-[8px] font-black text-white uppercase tracking-tight text-left flex-1 font-bold">{idx+1}. {label}</span><span className="text-sm font-black text-emerald-500 font-mono">{student.marks.hp3_items[idx]}%</span></div>
+                                                    <input type="range" min="0" max="100" value={student.marks.hp3_items[idx]} onChange={e => {
+                                                        const newM = [...student.marks.hp3_items];
+                                                        newM[idx] = parseInt(e.target.value);
+                                                        setSelectedStudent(prev => ({...prev, marks: {...prev.marks, hp3_items: newM}}));
+                                                    }} className="giant-slider" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'amali2' && (
+                                    <div className="space-y-4 animate-in fade-in duration-300">
+                                        <div className="grid grid-cols-2 gap-3 text-center">
+                                            {[{k:'hp4',l:'HP4 (15)'},{k:'hp5',l:'HP5 (10)'}].map(item => (
+                                                <div key={item.k} className="p-6 glass-morphism rounded-3xl border border-slate-800 shadow-2xl">
+                                                    <label className="text-[8px] font-black text-slate-500 uppercase block mb-3 tracking-widest leading-none font-bold">{item.l}</label>
+                                                    <input type="number" value={student.marks[item.k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [item.k]: e.target.value}}))} className="w-full bg-transparent text-center text-4xl font-black text-white outline-none focus:text-emerald-400 shadow-inner" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'kuiz' && (
+                                    <div className="space-y-4 animate-in fade-in duration-300 px-2">
+                                        {['kuiz1', 'kuiz2'].map(k => (
+                                            <div key={k} className="p-8 glass-morphism rounded-[40px] text-center border-emerald-500/5 shadow-2xl">
+                                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-3 block leading-none font-bold font-black">{k.toUpperCase()}</label>
+                                                <input type="number" value={student.marks[k]} onChange={e => setSelectedStudent(prev => ({...prev, marks: {...prev.marks, [k]: e.target.value}}))} className="w-full bg-transparent text-center text-7xl font-black text-white border-none outline-none focus:text-emerald-400 shadow-inner font-black" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-4 bg-slate-900 border-t border-slate-800 fixed bottom-0 w-full z-20 shrink-0 shadow-[0_-15px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+                                <button onClick={handleSave} disabled={syncing} className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(16,185,129,0.3)] active:scale-95 transition-all uppercase tracking-widest leading-none font-bold font-black">
+                                    {syncing ? <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div> : <Icon name="save" size={16}/>}
+                                    SIMPAN PEMARKAHAN CLOUD
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </motion.div>
             );
         };
@@ -670,7 +694,7 @@
             const onLogout = () => { setView('login'); setCurrentUser(null); setSelectedStudent(null); setRole('staff'); };
 
             const saveMarks = async () => {
-                if (!selectedStudent) return;
+                if (!selectedStudent) return false;
                 setSyncing(true);
                 const hp3_w = (selectedStudent.marks.hp3_items.reduce((a, b) => a + b, 0) / 600) * 25;
                 try {
@@ -687,12 +711,23 @@
                             'HP3 (25%)': hp3_w.toFixed(2)
                         }
                     };
-                    await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                    alert("Berjaya Dihantar. Sila tunggu 5-10 saat.");
-                    setSelectedStudent(null);
+                    
+                    const response = await fetch(GOOGLE_SHEET_API_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify(payload) 
+                    });
+                    
+                    // Delay sekejap untuk beri Google Sheet masa kemaskini
+                    await new Promise(r => setTimeout(r, 1000));
                     fetchData();
-                } catch (e) { alert("Ralat Cloud."); }
-                finally { setSyncing(false); }
+                    return true;
+                } catch (e) { 
+                    alert("Ralat Cloud: Sila pastikan Apps Script dideploy sebagai Web App."); 
+                    return false;
+                } finally { 
+                    setSyncing(false); 
+                }
             };
 
             const saveBiodata = async (formData) => {
@@ -709,7 +744,7 @@
                             tel_kecemasan: formData.tel_kecemasan
                         }
                     };
-                    await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                    await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', body: JSON.stringify(payload) });
                     alert("Biodata dikemaskini!");
                     fetchData();
                 } catch (e) { alert("Ralat."); }
