@@ -145,7 +145,7 @@
             "COKLAT": "C", "JINGGA": "J", "MERAH": "M"
         };
 
-        // --- PARSER CSV ---
+        // --- PARSER CSV (PEMPROSESAN PENGEPALA TEGAR) ---
         const parseCSV = (text) => {
             const rows = text.split(/\r?\n/).filter(r => r.trim());
             if (rows.length < 2) return [];
@@ -158,24 +158,30 @@
                     const val = values[i] || '';
                     const lowH = h.toLowerCase().trim();
                     
-                    if (lowH === 'nama_pelajar' || lowH === 'nama pelajar') obj.nama = val;
-                    else if (lowH === 'no_kp' || lowH === 'kad pengenalan') obj.no_kp = val.toString().trim();
-                    else if (lowH.includes('url gambar') || lowH === 'gambar') obj.url_gambar = val;
-                    else if (lowH === 'nama_pensyarah') obj.assigned_lecturer = val;
-                    else if (lowH === 'siri big') obj.siri = val;
-                    else if (lowH === 'kumpulan big') obj.kumpulan = val;
-                    else if (lowH === 'no dalam kumpulan') obj.no_kumpulan = val;
-                    else if (lowH === 'kelas') obj.kelas = val;
+                    // Pemetaan berdasarkan struktur data sheet yang diberikan
+                    if (h === 'Nama_Pelajar') obj.nama = val;
+                    else if (h === 'No_KP') obj.no_kp = val.toString().trim();
+                    else if (h === 'Kelas') obj.kelas = val;
+                    else if (h === 'Url Gambar') obj.url_gambar = val;
+                    else if (h === 'SIRI BIG') obj.siri = val;
+                    else if (h === 'KUMPULAN BIG') obj.kumpulan = val;
+                    else if (h === 'No Dalam Kumpulan') obj.no_kumpulan = val;
+                    else if (h === 'NAMA_PENSYARAH') obj.assigned_lecturer = val;
+                    else if (h === 'QR Code' || i === 19) obj.qr_code = val; // Kolum T (Indeks 19)
                     
-                    // Markah mapping
+                    // Markah mapping (Kunci untuk paparan)
                     if (h === 'Kuiz1') obj.val_kuiz1 = val;
                     if (h === 'Kuiz2') obj.val_kuiz2 = val;
                     if (h === 'HP4 (10%)') obj.val_hp4 = val;
                     if (h === 'HP5 (10%)') obj.val_hp5 = val;
+                    if (h === 'HP3 (25%)') obj.val_hp3 = val;
                     if (h === 'HP8 Ind (15%)') obj.val_hp8_ind = val;
                     if (h === 'HP8 Kum (30%)') obj.val_hp8_kum = val;
-                    if (h === 'HP3 (25%)') obj.val_hp3 = val;
                     if (h === 'JUMLAH (100%)') obj.val_total = val;
+
+                    // Support for lecturer login data
+                    if (h === 'EMAIL') obj.email = val.toLowerCase();
+                    if (h === 'PASSWORD') obj.password = val;
                 });
                 return obj;
             });
@@ -195,7 +201,7 @@
             return <span className={`inline-flex items-center justify-center ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
         };
 
-        // --- CAMERA SCANNER MODAL ---
+        // --- MODAL PENGIMBAS KAMERA ---
         const ScannerModal = ({ isOpen, onClose, onScan, students }) => {
             useEffect(() => {
                 let html5QrCode;
@@ -207,24 +213,24 @@
                         { facingMode: "environment" }, 
                         config, 
                         (decodedText) => {
-                            const code = decodedText.toUpperCase().trim();
+                            const code = decodedText.trim().toUpperCase();
                             
-                            // Logik 1: Cari mengikut Tag ID (cth: C3)
-                            let found = students.find(s => {
-                                const colorName = s.kumpulan?.toUpperCase() || "";
-                                const colorInitial = COLOR_MAP[colorName] || colorName.charAt(0);
-                                const tag = `${colorInitial}${s.no_kumpulan}`;
-                                return tag === code;
-                            });
+                            // Logik 1: Cari mengikut No_KP (QR data No_KP)
+                            let found = students.find(s => s.no_kp === code);
 
-                            // Logik 2: Cari mengikut No_KP
+                            // Logik 2: Cari mengikut Tag ID (cth: C3)
                             if (!found) {
-                                found = students.find(s => s.no_kp === code);
+                                found = students.find(s => {
+                                    const colorName = s.kumpulan?.toUpperCase() || "";
+                                    const colorInitial = COLOR_MAP[colorName] || colorName.charAt(0);
+                                    const tag = `${colorInitial}${s.no_kumpulan}`;
+                                    return tag === code;
+                                });
                             }
 
                             if (found) {
                                 onScan(found);
-                                html5QrCode.stop().then(() => onClose());
+                                html5QrCode.stop().then(() => onClose()).catch(() => onClose());
                             }
                         },
                         () => {} 
@@ -232,7 +238,7 @@
                 }
                 return () => {
                     if (html5QrCode && html5QrCode.isScanning) {
-                        html5QrCode.stop();
+                        html5QrCode.stop().catch(() => {});
                     }
                 };
             }, [isOpen, students, onScan, onClose]);
@@ -246,60 +252,60 @@
                             <h3 className="text-emerald-400 font-black text-sm uppercase tracking-widest">Imbas Kod Pelajar</h3>
                             <button onClick={onClose} className="p-2 bg-slate-800 rounded-xl text-slate-400"><Icon name="x" size={20}/></button>
                         </div>
-                        <div id="reader" className="bg-slate-900 rounded-3xl mb-6"></div>
+                        <div id="reader" className="bg-slate-900 rounded-3xl mb-6 border-2 border-emerald-500/10"></div>
                         <p className="text-slate-500 text-[10px] text-center uppercase tracking-widest leading-relaxed px-4">
-                            Halakan kamera ke QR No. KP atau Tag Ahli untuk akses pantas.
+                            Imbas Kod QR pada kad pelajar untuk memproses Merit/Demerit dengan pantas.
                         </p>
                     </div>
                 </div>
             );
         };
 
-        // --- VIEWS ---
+        // --- DASHBOARD ADMIN ---
 
         const AdminDashboard = ({ students, onLogout, onSelectStudent }) => {
             const [search, setSearch] = useState('');
             const filteredStudents = useMemo(() => students.filter(s => s.nama?.toLowerCase().includes(search.toLowerCase())), [students, search]);
 
             return (
-                <div className="h-screen flex flex-col bg-[#020617] overflow-hidden">
+                <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
                     <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 shadow-2xl z-50">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-black italic text-slate-950 text-xs shadow-lg">BIG</div>
+                        <div className="flex items-center gap-3 text-left">
+                            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-black italic text-slate-950 text-xs">BIG</div>
                             <div>
-                                <h1 className="font-black text-[10px] text-white uppercase tracking-widest leading-none">Admin Terminal</h1>
-                                <p className="text-[7px] text-emerald-400 font-bold uppercase">En. Haniff Faizal</p>
+                                <h1 className="font-black text-[10px] text-white uppercase tracking-widest leading-none">Admin Hub</h1>
+                                <p className="text-[7px] text-emerald-400 font-bold uppercase">Haniff Faizal</p>
                             </div>
                         </div>
                         <button onClick={onLogout} className="p-2 bg-slate-800 rounded-lg text-red-400 active:scale-90"><Icon name="log-out" size={16}/></button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950 no-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
                         <div className="grid grid-cols-2 gap-2">
-                            <div className="glass-morphism p-3 rounded-2xl text-center border-emerald-500/10"><p className="text-[6px] font-black text-slate-500 uppercase mb-1">Purata Skor</p><p className="text-xl font-black text-emerald-400">{((students.reduce((a,b)=>a+(parseFloat(b.val_total)||0),0)/students.length)||0).toFixed(1)}%</p></div>
+                            <div className="glass-morphism p-3 rounded-2xl text-center border-emerald-500/10"><p className="text-[6px] font-black text-slate-500 uppercase mb-1">Purata Kohort</p><p className="text-xl font-black text-emerald-400">{((students.reduce((a,b)=>a+(parseFloat(b.val_total)||0),0)/students.length)||0).toFixed(1)}%</p></div>
                             <div className="glass-morphism p-3 rounded-2xl text-center border-slate-800"><p className="text-[6px] font-black text-slate-500 uppercase mb-1">Jumlah Calon</p><p className="text-xl font-black text-white">{students.length}</p></div>
                         </div>
 
                         <div className="space-y-2 pb-24">
                             <div className="flex items-center justify-between px-1">
                                 <h3 className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Pangkalan Data Pelajar</h3>
-                                <div className="relative w-36">
-                                    <Icon name="search" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-600" size={10} />
-                                    <input value={search} onChange={e => setSearch(e.target.value)} className="bg-slate-900 border border-slate-800 rounded-lg py-1.5 pl-7 pr-2 text-[8px] text-white w-full outline-none focus:border-emerald-500" placeholder="Cari..." />
+                                <div className="relative w-32">
+                                    <Icon name="search" className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-700" size={10} />
+                                    <input value={search} onChange={e => setSearch(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 pl-6 pr-2 text-[8px] text-white outline-none focus:border-emerald-500" placeholder="Cari..." />
                                 </div>
                             </div>
                             <div className="space-y-1.5">
                                 {filteredStudents.map((s, idx) => (
-                                    <div key={idx} onClick={() => onSelectStudent(s)} className="glass-morphism p-3 rounded-2xl flex items-center gap-3 border-slate-800 active:scale-[0.98] cursor-pointer shadow-md">
-                                        <div className="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 overflow-hidden shrink-0 flex items-center justify-center">
+                                    <div key={idx} onClick={() => onSelectStudent(s)} className="glass-morphism p-3 rounded-2xl flex items-center gap-3 border-slate-800 active:scale-[0.98] cursor-pointer">
+                                        <div className="w-9 h-9 rounded-lg bg-slate-800 overflow-hidden shrink-0 border border-slate-700 flex items-center justify-center">
                                             {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <Icon name="user" className="text-slate-700" size={16} />}
                                         </div>
                                         <div className="flex-1 overflow-hidden text-left">
-                                            <h4 className="text-[10px] font-black text-white uppercase truncate">{s.nama || "No Name"}</h4>
-                                            <p className="text-[7px] text-slate-500 uppercase font-bold">Unit: {s.kelas} | Siri: {s.siri}</p>
+                                            <h4 className="text-[10px] font-black text-white uppercase truncate tracking-tight leading-none">{s.nama || "No Name"}</h4>
+                                            <p className="text-[7px] text-slate-500 uppercase mt-1 leading-none">Unit: {s.kelas} | Pensyarah: {s.assigned_lecturer}</p>
                                         </div>
                                         <div className="text-right shrink-0">
-                                            <p className="text-[10px] font-black text-emerald-400">{s.val_total || s.marks?.total}%</p>
+                                            <p className="text-[10px] font-black text-emerald-400">{s.val_total}%</p>
                                         </div>
                                     </div>
                                 ))}
@@ -318,14 +324,15 @@
                 const code = e.target.value.toUpperCase().trim();
                 setScanCode(code);
                 if (code.length >= 2) {
-                    let found = students.find(s => {
-                        const colorName = s.kumpulan?.toUpperCase() || "";
-                        const colorInitial = COLOR_MAP[colorName] || colorName.charAt(0);
-                        const tag = `${colorInitial}${s.no_kumpulan}`;
-                        return tag === code;
-                    });
-                    if (!found) found = students.find(s => s.no_kp === code);
-                    
+                    let found = students.find(s => s.no_kp === code);
+                    if (!found) {
+                        found = students.find(s => {
+                            const colorName = s.kumpulan?.toUpperCase() || "";
+                            const colorInitial = COLOR_MAP[colorName] || colorName.charAt(0);
+                            const tag = `${colorInitial}${s.no_kumpulan}`;
+                            return tag === code;
+                        });
+                    }
                     if (found) { onQuickScan(found); setScanCode(''); }
                 }
             };
@@ -336,20 +343,18 @@
                     
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md glass-morphism p-8 rounded-[40px] border-emerald-500/20 shadow-2xl relative overflow-hidden text-center">
                         <div className="absolute top-0 right-0 p-4 z-20 flex gap-2">
-                            <button onClick={() => setIsScanning(true)} className="bg-emerald-500 text-slate-950 p-2.5 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-90"><Icon name="camera" size={20}/></button>
+                            <button onClick={() => setIsScanning(true)} className="bg-emerald-500 text-slate-950 p-2.5 rounded-xl shadow-lg active:scale-90"><Icon name="camera" size={20}/></button>
                             <div className="relative w-20">
                                 <input value={scanCode} onChange={handleScanInput} className="w-full bg-emerald-500/10 border border-emerald-500/40 rounded-lg py-1 px-2 text-center text-[10px] font-black text-emerald-400 outline-none scan-pulse" placeholder="TAG ID" />
                             </div>
                         </div>
-
                         <div className="mb-8 mt-12">
                             <div className="inline-flex p-3 bg-emerald-500/10 rounded-2xl mb-4 border border-emerald-500/20 shadow-lg"><Icon name="shield-check" className="text-emerald-500" size={40} /></div>
                             <h2 className="text-3xl font-black text-white italic uppercase leading-none">BIG Hub.</h2>
                             <p className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.4em] mt-3 border-t border-slate-800 pt-2 mx-10">Pusat Kawalan Amali</p>
                         </div>
-                        
                         <form onSubmit={handleLogin} className="space-y-4 text-left">
-                            <div className="flex p-1 bg-slate-800/40 rounded-xl border border-slate-700/50 shadow-inner">
+                            <div className="flex p-1 bg-slate-800/40 rounded-xl border border-slate-700/50">
                                 <button type="button" onClick={() => setRole('staff')} className={`flex-1 py-2.5 text-[9px] font-black rounded-lg transition-all ${role === 'staff' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PENSYARAH</button>
                                 <button type="button" onClick={() => setRole('student')} className={`flex-1 py-2.5 text-[9px] font-black rounded-lg transition-all ${role === 'student' ? 'bg-emerald-500 text-slate-950 shadow-lg' : 'text-slate-500'}`}>PELAJAR</button>
                             </div>
@@ -357,11 +362,11 @@
                                 <input name="ic" type="text" placeholder="No. Kad Pengenalan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white outline-none focus:border-emerald-500 text-center font-bold tracking-widest shadow-inner text-sm" required />
                             ) : (
                                 <div className="space-y-3">
-                                    <input name="email" type="email" placeholder="Emel IPGM" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-white outline-none focus:border-emerald-500 shadow-inner text-xs" required />
+                                    <input name="email" type="email" placeholder="Emel Pensyarah" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-white outline-none focus:border-emerald-500 shadow-inner text-xs" required />
                                     <input name="password" type="password" placeholder="Kata Laluan" className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3.5 text-white outline-none focus:border-emerald-500 shadow-inner text-xs" required />
                                 </div>
                             )}
-                            <button type="submit" className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black shadow-[0_0_20px_rgba(16,185,129,0.2)] active:scale-95 transition-all uppercase tracking-widest text-[10px]">Akses Protokol</button>
+                            <button type="submit" className="w-full py-4 rounded-2xl bg-emerald-500 text-slate-950 font-black shadow-lg active:scale-95 transition-all uppercase tracking-widest text-[10px]">Akses Protokol</button>
                         </form>
                     </motion.div>
                 </div>
@@ -371,8 +376,6 @@
         const LecturerDashboard = ({ currentUser, students, searchQuery, setSearchQuery, setSelectedStudent, setActiveEvalTab, onLogout, isAdmin }) => {
             const [fSiri, setFSiri] = useState('');
             const [fKelas, setFKelas] = useState('');
-            const [fKump, setFKump] = useState('');
-            const [fNo, setFNo] = useState('');
 
             const filtered = useMemo(() => {
                 let list = students;
@@ -382,15 +385,15 @@
                 return list
                     .filter(s => fSiri === '' || s.siri === fSiri)
                     .filter(s => fKelas === '' || s.kelas === fKelas)
-                    .filter(s => fKump === '' || s.kumpulan === fKump)
-                    .filter(s => fNo === '' || s.no_kumpulan === fNo)
                     .filter(s => s.nama?.toLowerCase().includes(searchQuery.toLowerCase()));
-            }, [students, currentUser, searchQuery, fSiri, fKelas, fKump, fNo, isAdmin]);
+            }, [students, currentUser, searchQuery, fSiri, fKelas, isAdmin]);
 
             const options = useMemo(() => {
                 const list = isAdmin ? students : students.filter(s => s.assigned_lecturer?.trim().toLowerCase() === currentUser?.nama_pensyarah?.trim().toLowerCase());
-                const getUniq = (key) => [...new Set(list.map(s => s[key]).filter(v => v))].sort();
-                return { siri: getUniq('siri'), kelas: getUniq('kelas'), kump: getUniq('kumpulan'), no: getUniq('no_kumpulan') };
+                return { 
+                    siri: [...new Set(list.map(s => s.siri).filter(v => v))].sort(),
+                    kelas: [...new Set(list.map(s => s.kelas).filter(v => v))].sort()
+                };
             }, [students, currentUser, isAdmin]);
 
             return (
@@ -398,17 +401,15 @@
                     <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 shadow-2xl z-50">
                         <div className="flex items-center gap-3 text-left">
                             <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-black italic text-slate-950 text-[10px]">BIG</div>
-                            <div><h1 className="font-black text-[9px] text-white uppercase tracking-widest leading-none">Lecturer HUB</h1><p className="text-[7px] text-emerald-500 font-bold truncate max-w-[120px] mt-1">{currentUser?.nama_pensyarah || currentUser?.nama}</p></div>
+                            <div><h1 className="font-black text-[9px] text-white uppercase leading-none tracking-widest">Lecturer HUB</h1><p className="text-[7px] text-emerald-500 font-bold truncate max-w-[120px] mt-1">{currentUser?.nama_pensyarah || currentUser?.nama}</p></div>
                         </div>
                         <button onClick={onLogout} className="p-2 bg-slate-800 rounded-lg text-red-400 active:scale-90 shadow-inner"><Icon name="log-out" size={16}/></button>
                     </div>
 
                     <div className="p-4 bg-slate-900/40 border-b border-slate-800 shrink-0 text-left">
-                        <div className="grid grid-cols-4 gap-1 mb-3">
+                        <div className="grid grid-cols-2 gap-1 mb-3">
                             <select value={fSiri} onChange={e => setFSiri(e.target.value)} className="filter-select"><option value="">Siri</option>{options.siri.map(v => <option key={v} value={v}>{v}</option>)}</select>
                             <select value={fKelas} onChange={e => setFKelas(e.target.value)} className="filter-select"><option value="">Unit</option>{options.kelas.map(v => <option key={v} value={v}>{v}</option>)}</select>
-                            <select value={fKump} onChange={e => setFKump(e.target.value)} className="filter-select"><option value="">Kump</option>{options.kump.map(v => <option key={v} value={v}>{v}</option>)}</select>
-                            <select value={fNo} onChange={e => setFNo(e.target.value)} className="filter-select"><option value="">No</option>{options.no.map(v => <option key={v} value={v}>{v}</option>)}</select>
                         </div>
                         <div className="relative">
                             <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={12} />
@@ -427,11 +428,11 @@
                                     <p className="text-[7px] font-bold text-emerald-500 uppercase tracking-tighter opacity-80 leading-none">{s.kelas} | Siri {s.siri}</p>
                                 </div>
                                 <div className="text-right shrink-0">
-                                    <p className="text-xs font-black text-emerald-400 leading-none">{s.val_total || s.marks?.total}%</p>
-                                    <p className="text-[6px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest opacity-40 leading-none">Score</p>
+                                    <p className="text-xs font-black text-emerald-400 leading-none">{s.marks?.total || s.val_total}%</p>
+                                    <p className="text-[6px] font-bold text-slate-500 mt-0.5 uppercase opacity-40">Score</p>
                                 </div>
                             </motion.div>
-                        )) : <div className="py-20 text-center glass-morphism rounded-[30px] border-dashed border-slate-800 border-2 shadow-inner"><p className="text-slate-700 font-black uppercase text-[8px] tracking-[0.4em] italic leading-tight">Data Tidak Ditemui</p></div>}
+                        )) : <div className="py-20 text-center glass-morphism rounded-[30px] border-dashed border-slate-800 border-2 shadow-inner"><p className="text-slate-700 font-black uppercase text-[8px] tracking-[0.4em] italic leading-tight text-center">Data Tidak Ditemui</p></div>}
                     </div>
                 </div>
             );
@@ -463,15 +464,10 @@
                     
                     {isSuccess ? (
                         <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
-                            <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6 animate-bounce">
-                                <Icon name="check-circle" size={60} className="text-emerald-500" />
-                            </div>
-                            <h2 className="text-2xl font-black text-white uppercase mb-2">Berjaya Disimpan!</h2>
-                            <p className="text-slate-500 text-sm mb-8">Data pemarkahan bagi {student.nama} telah dihantar ke Cloud.</p>
-                            <button 
-                                onClick={() => { setIsSuccess(false); setSelectedStudent(null); }}
-                                className="px-10 py-4 bg-emerald-500 text-slate-950 font-black rounded-2xl shadow-xl active:scale-95 transition-all flex items-center gap-2"
-                            >
+                            <Icon name="check-circle" size={80} className="text-emerald-500 mb-6 animate-bounce" />
+                            <h2 className="text-2xl font-black text-white uppercase mb-2">Data Dihantar!</h2>
+                            <p className="text-slate-500 text-sm mb-8 leading-relaxed">Pemarkahan bagi <b>{student.nama}</b> telah berjaya diproses ke pangkalan data cloud.</p>
+                            <button onClick={() => { setIsSuccess(false); setSelectedStudent(null); }} className="px-10 py-4 bg-emerald-500 text-slate-950 font-black rounded-2xl shadow-xl active:scale-95 transition-all flex items-center gap-2">
                                 <Icon name="arrow-left" size={18}/> KEMBALI KE SENARAI
                             </button>
                         </div>
@@ -479,8 +475,8 @@
                         <>
                             <div className="p-4 bg-slate-900 border-b border-slate-800 flex items-center gap-4 shrink-0 shadow-2xl relative z-10 text-center">
                                 <button onClick={() => setSelectedStudent(null)} className="p-2 bg-slate-800 rounded-xl text-slate-400 border border-slate-700 active:scale-90 shrink-0 shadow-inner"><Icon name="chevron-left" size={20}/></button>
-                                <div className="w-24 h-24 rounded-[30px] bg-slate-800 overflow-hidden border-4 border-emerald-500/20 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5 mx-auto">
-                                    {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-950"><Icon name="user" size={40}/></div>}
+                                <div className="w-20 h-20 rounded-[30px] bg-slate-800 overflow-hidden border-4 border-emerald-500/20 shrink-0 shadow-2xl relative ring-4 ring-emerald-500/5 mx-auto">
+                                    {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-700 bg-slate-950 font-black italic">BIG</div>}
                                 </div>
                                 <div className="flex-1 overflow-hidden text-left">
                                     <h2 className="text-[13px] font-black text-white uppercase truncate mb-1 tracking-tight leading-none font-bold">{student.nama}</h2>
@@ -495,8 +491,7 @@
                             <div className="px-4 py-2 flex gap-2 bg-slate-900 border-b border-slate-800 shrink-0 overflow-x-auto no-scrollbar z-10">
                                 {[{id:'amali3',icon:'activity',l:'AMALI 3'},{id:'amali2',icon:'layers',l:'AMALI 2'},{id:'kuiz',icon:'trophy',l:'KUIZ'}].map(t => (
                                     <button key={t.id} onClick={() => setActiveTab(t.id)} className={`flex-1 min-w-[80px] py-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === t.id ? 'tab-active' : 'bg-slate-800 text-slate-500 shadow-inner'}`}>
-                                        <Icon name={t.icon} size={14}/>
-                                        <span className="text-[8px] font-black tracking-widest uppercase leading-none">{t.l}</span>
+                                        <Icon name={t.icon} size={14}/><span className="text-[8px] font-black tracking-widest uppercase leading-none">{t.l}</span>
                                     </button>
                                 ))}
                             </div>
@@ -507,15 +502,15 @@
                                         <div className="p-4 glass-morphism rounded-3xl border-emerald-500/10 space-y-4 shadow-xl">
                                             <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2 font-bold"><Icon name="user-check" size={12}/> HP8 INDIVIDU (MAX 20)</span><span className="text-xl font-black text-emerald-400 font-mono shadow-inner">{student.marks.hp8_ind}</span></div>
                                             <div className="flex gap-2">
-                                                <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">+ MERIT</button>
-                                                <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">- DEMERIT</button>
+                                                <button onClick={() => adjustHP8('ind', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">+ MERIT</button>
+                                                <button onClick={() => adjustHP8('ind', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">- DEMERIT</button>
                                             </div>
                                         </div>
                                         <div className="p-4 glass-morphism rounded-3xl border-blue-500/10 space-y-4 shadow-xl text-left">
                                             <div className="flex justify-between items-center"><span className="text-[8px] font-black text-white uppercase tracking-widest flex items-center gap-2 font-bold"><Icon name="users" size={12}/> HP8 KUMPULAN (MAX 30)</span><span className="text-xl font-black text-blue-400 font-mono shadow-inner">{student.marks.hp8_kum}</span></div>
                                             <div className="flex gap-2">
-                                                <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">+ MERIT</button>
-                                                <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 font-bold">- DEMERIT</button>
+                                                <button onClick={() => adjustHP8('kum', 1)} className="flex-1 py-3 bg-emerald-500 text-slate-950 rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">+ MERIT</button>
+                                                <button onClick={() => adjustHP8('kum', -1)} className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-[9px] uppercase shadow-lg active:scale-95 transition-all font-bold">- DEMERIT</button>
                                             </div>
                                         </div>
 
@@ -600,7 +595,7 @@
                             </div>
                             <div className="grid grid-cols-2 gap-2 text-left text-xs">
                                 <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Alahan</label><input value={formData.alahan} onChange={e => handleChange('alahan', e.target.value)} className="form-input shadow-inner text-[9px]" placeholder="Nyatakan..." /></div>
-                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Tel Waris</label><input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input shadow-inner text-[9px]" placeholder="012-..." /></div>
+                                <div className="space-y-0.5"><label className="text-[7px] font-black text-slate-500 uppercase px-1">Waris</label><input value={formData.tel_kecemasan} onChange={e => handleChange('tel_kecemasan', e.target.value)} className="form-input shadow-inner text-[9px]" placeholder="012-..." /></div>
                             </div>
                             <div className="space-y-0.5 text-left"><label className="text-[7px] font-black text-slate-500 uppercase px-1 font-bold">URL Foto (G-Drive Link)</label><input value={formData.url_gambar} onChange={e => handleChange('url_gambar', e.target.value)} className="form-input text-[8px] shadow-inner font-mono" /></div>
                             <div className="pt-2 space-y-2">
@@ -637,7 +632,7 @@
                         fetch(`${CSV_LECTURERS_URL}&t=${Date.now()}`).then(r => r.text()),
                         fetch(`${CSV_MARKS_URL}&t=${Date.now()}`).then(r => r.text())
                     ]);
-                    const pL = parseCSV(resL).filter(l => l.email);
+                    const pL = parseCSV(resL);
                     const pM = parseCSV(resM);
                     const pS = parseCSV(resS).map(s => {
                         const mD = pM.find(m => m.no_kp?.toString().trim() === s.no_kp?.toString().trim()) || {};
@@ -680,7 +675,7 @@
                         setRole('admin');
                         setView('admin_dashboard');
                     } else {
-                        const lect = lecturers.find(l => l.email.toLowerCase() === email && l.password.toString() === pass);
+                        const lect = lecturers.find(l => l.email === email && l.password.toString() === pass);
                         if (lect) { 
                             setCurrentUser(lect); 
                             setRole('staff');
@@ -712,18 +707,15 @@
                         }
                     };
                     
-                    const response = await fetch(GOOGLE_SHEET_API_URL, { 
+                    await fetch(GOOGLE_SHEET_API_URL, { 
                         method: 'POST', 
-                        headers: { 'Content-Type': 'text/plain' },
                         body: JSON.stringify(payload) 
                     });
                     
-                    // Delay sekejap untuk beri Google Sheet masa kemaskini
-                    await new Promise(r => setTimeout(r, 1000));
-                    fetchData();
+                    setTimeout(fetchData, 2000);
                     return true;
                 } catch (e) { 
-                    alert("Ralat Cloud: Sila pastikan Apps Script dideploy sebagai Web App."); 
+                    alert("Ralat Cloud: Pastikan Apps Script Web App Aktif."); 
                     return false;
                 } finally { 
                     setSyncing(false); 
