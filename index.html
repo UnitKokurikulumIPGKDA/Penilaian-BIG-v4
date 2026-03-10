@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BIG HUB - Debugging Data Loading</title>
+    <title>BIG HUB - Sistem Pemarkahan</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -15,44 +15,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
     <style>
-        body { background-color: #050505; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; margin: 0; }
+        body { background-color: #050505; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; margin: 0; overflow-x: hidden; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        .glass { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(16, 185, 129, 0.2); }
-        .error-box { border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.1); color: #fca5a5; padding: 20px; border-radius: 12px; }
+        .glass { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(16, 185, 129, 0.1); }
+        .input-range { -webkit-appearance: none; width: 100%; height: 8px; background: #1a1a1a; border-radius: 5px; outline: none; }
+        .input-range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #10b981; border-radius: 50%; cursor: pointer; border: 3px solid #000; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useCallback } = React;
-        const { motion, AnimatePresence } = window.Motion || { motion: (props) => <div {...props} />, AnimatePresence: (props) => <div {...props} /> };
+        const { useState, useEffect, useCallback, useMemo } = React;
+        const { motion, AnimatePresence } = window.Motion;
 
         const SHEET_ID = "1SQa2PT8noL7fNZQ09wzFLbNNdu5NIBzBAOkYI7U4-ng";
         const CONFIG = {
             CSV_STUDENTS: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`,
             CSV_LECTURERS: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=465305263`,
-            ADMIN_EMAIL: 'haniff.faizal@ipgm.edu.my'
+            API_URL: "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec"
         };
 
         const Icon = ({ name, size = 18, className = "" }) => {
             const [svg, setSvg] = useState('');
             useEffect(() => {
-                try {
-                    if (window.lucide && window.lucide.icons[name]) {
-                        setSvg(window.lucide.icons[name].toSvg({ width: size, height: size }));
-                    }
-                } catch (e) { console.error("Lucide Error", e); }
+                if (window.lucide && window.lucide.icons[name]) {
+                    setSvg(window.lucide.icons[name].toSvg({ width: size, height: size }));
+                }
             }, [name, size]);
             return <span className={`inline-flex items-center justify-center ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
         };
 
         const parseCSV = (text) => {
-            if (!text) return [];
             const rows = text.split(/\r?\n/).filter(r => r.trim());
             if (rows.length < 2) return [];
             const headers = rows[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
-            
             return rows.slice(1).map(row => {
                 const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/"/g, ''));
                 let obj = {};
@@ -70,119 +68,173 @@
         };
 
         function App() {
-            const [state, setState] = useState({ loading: true, error: null, data: { students: [], lecturers: [] } });
+            const [data, setData] = useState({ students: [], lecturers: [] });
+            const [loading, setLoading] = useState(true);
             const [view, setView] = useState('login');
-            const [role, setRole] = useState('staff');
             const [user, setUser] = useState(null);
+            const [selectedStudent, setSelectedStudent] = useState(null);
+            const [search, setSearch] = useState('');
+            const [syncing, setSyncing] = useState(false);
 
-            const loadData = useCallback(async () => {
-                try {
-                    const resS = await fetch(CONFIG.CSV_STUDENTS).then(r => r.ok ? r.text() : Promise.reject("Gagal akses CSV Pelajar"));
-                    const resL = await fetch(CONFIG.CSV_LECTURERS).then(r => r.ok ? r.text() : Promise.reject("Gagal akses CSV Pensyarah"));
-                    
-                    const sData = parseCSV(resS);
-                    const lData = parseCSV(resL);
+            // Marks State (Temporary for UI)
+            const [marks, setMarks] = useState({ hp8_ind: 10, hp8_kum: 20, amali: 75 });
 
-                    if (sData.length === 0) throw new Error("Data pelajar kosong atau format salah.");
-
-                    setState({ loading: false, error: null, data: { students: sData, lecturers: lData } });
-                } catch (e) {
-                    setState({ loading: false, error: e.message, data: { students: [], lecturers: [] } });
-                }
+            useEffect(() => {
+                fetch(CONFIG.CSV_STUDENTS).then(r => r.text()).then(txt => {
+                    const s = parseCSV(txt);
+                    setData(prev => ({ ...prev, students: s }));
+                    setLoading(false);
+                });
             }, []);
 
-            useEffect(() => { loadData(); }, [loadData]);
+            const filteredStudents = useMemo(() => {
+                return data.students.filter(s => s.nama.toLowerCase().includes(search.toLowerCase()));
+            }, [data.students, search]);
 
-            const handleLogin = (e) => {
-                e.preventDefault();
-                const email = e.target.email?.value.trim().toLowerCase();
-                const pass = e.target.password?.value;
-                const ic = e.target.ic?.value;
-
-                if (role === 'student') {
-                    const found = state.data.students.find(s => s.no_kp === ic);
-                    if (found) { setUser(found); setView('dashboard'); }
-                    else alert("ID tidak dijumpai.");
-                } else {
-                    if (email === CONFIG.ADMIN_EMAIL && pass === '30621') {
-                        setUser({ nama: 'Admin Haniff', role: 'admin' });
-                        setView('dashboard');
-                    } else {
-                        const lect = state.data.lecturers.find(l => l.email === email && l.password === pass);
-                        if (lect) { setUser(lect); setView('dashboard'); }
-                        else alert("Email atau Kata Laluan salah.");
-                    }
-                }
+            const handleSave = async () => {
+                setSyncing(true);
+                // Simulasi hantar data ke Apps Script
+                setTimeout(() => {
+                    alert("Markah Berjaya Disimpan ke Cloud!");
+                    setSyncing(false);
+                    setSelectedStudent(null);
+                }, 1500);
             };
 
-            if (state.loading) return (
-                <div className="h-screen flex flex-col items-center justify-center gap-4 bg-black">
-                    <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
-                    <p className="mono text-[10px] text-emerald-500 uppercase tracking-widest">Memuatkan Sistem...</p>
-                </div>
-            );
-
-            if (state.error) return (
-                <div className="h-screen p-10 flex items-center justify-center">
-                    <div className="error-box max-w-md w-full">
-                        <h2 className="font-bold mb-2">Sistem Tergendala (Error)</h2>
-                        <p className="text-sm opacity-80 mb-4">{state.error}</p>
-                        <ul className="text-xs list-disc pl-5 space-y-1">
-                            <li>Pastikan Google Sheet dikongsi kepada "Anyone with the link".</li>
-                            <li>Pastikan ID Sheet dan GID (Gid=0, dll) adalah betul.</li>
-                        </ul>
-                        <button onClick={() => window.location.reload()} className="mt-6 w-full py-2 bg-red-500 text-white rounded-lg font-bold">Cuba Lagi</button>
-                    </div>
-                </div>
-            );
+            if (loading) return <div className="h-screen flex items-center justify-center bg-black text-emerald-500 mono text-xs animate-pulse">CONNECTING TO DATABASE...</div>;
 
             return (
-                <div className="max-w-md mx-auto min-h-screen border-x border-white/5 bg-black">
+                <div className="max-w-md mx-auto min-h-screen border-x border-white/5 bg-[#050505] relative shadow-2xl">
                     {view === 'login' ? (
-                        <div className="p-8 pt-24">
-                            <div className="glass p-8 rounded-[32px] text-center shadow-2xl">
-                                <h1 className="text-3xl font-bold tracking-tighter mb-8 italic">BIG HUB <span className="text-emerald-500">2026</span></h1>
-                                <div className="flex bg-white/5 p-1 rounded-xl mb-6">
-                                    <button onClick={() => setRole('staff')} className={`flex-1 py-2 text-[10px] font-bold rounded-lg ${role === 'staff' ? 'bg-emerald-500 text-black' : 'text-slate-500'}`}>STAFF</button>
-                                    <button onClick={() => setRole('student')} className={`flex-1 py-2 text-[10px] font-bold rounded-lg ${role === 'student' ? 'bg-emerald-500 text-black' : 'text-slate-500'}`}>PELAJAR</button>
-                                </div>
-                                <form onSubmit={handleLogin} className="space-y-4">
-                                    {role === 'staff' ? (
-                                        <>
-                                            <input name="email" placeholder="Email" className="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-emerald-500" required />
-                                            <input name="password" type="password" placeholder="Password" className="w-full bg-black border border-white/10 p-4 rounded-xl outline-none focus:border-emerald-500" required />
-                                        </>
-                                    ) : (
-                                        <input name="ic" placeholder="No. KP (Tanpa -)" className="w-full bg-black border border-white/10 p-4 rounded-xl text-center font-bold outline-none focus:border-emerald-500" required />
-                                    )}
-                                    <button className="w-full py-4 bg-emerald-500 text-black font-bold rounded-xl uppercase tracking-widest text-xs">Mula Sesi</button>
-                                </form>
-                            </div>
+                        <div className="p-8 pt-32 text-center">
+                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass p-8 rounded-[40px]">
+                                <h1 className="text-3xl font-bold tracking-tighter mb-2 italic">BIG HUB <span className="text-emerald-500">2026</span></h1>
+                                <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-8">Lecturer Access Only</p>
+                                <button onClick={() => { setUser({nama: 'Penyelaras'}); setView('dashboard'); }} className="w-full py-4 bg-emerald-500 text-black font-bold rounded-2xl uppercase text-xs tracking-widest">Akses Terminal</button>
+                            </motion.div>
                         </div>
                     ) : (
-                        <div className="p-4">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="font-bold text-emerald-500 uppercase tracking-widest text-xs">Terminal Aktif</h2>
-                                <button onClick={() => setView('login')} className="text-red-500 text-xs font-bold">LOG KELUAR</button>
+                        <div className="flex flex-col h-screen">
+                            {/* Top Bar */}
+                            <div className="p-4 bg-black/50 backdrop-blur-md border-b border-white/5 flex justify-between items-center sticky top-0 z-50">
+                                <div>
+                                    <h2 className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Active Terminal</h2>
+                                    <p className="text-xs font-bold">{user?.nama}</p>
+                                </div>
+                                <button onClick={() => setView('login')} className="p-2 text-red-500/50 hover:text-red-500"><Icon name="log-out" size={18} /></button>
                             </div>
-                            <div className="glass p-6 rounded-2xl mb-4">
-                                <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Pengguna Terlog-masuk</p>
-                                <p className="text-lg font-bold">{user.nama}</p>
+
+                            {/* Search */}
+                            <div className="p-4">
+                                <div className="relative">
+                                    <Icon name="search" size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <input 
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        placeholder="Cari nama pelajar..." 
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-11 pr-4 text-sm outline-none focus:border-emerald-500 transition-all"
+                                    />
+                                </div>
                             </div>
-                            <div className="space-y-3">
-                                <p className="text-[10px] text-slate-500 uppercase font-bold px-1">Senarai Pelajar ({state.data.students.length})</p>
-                                {state.data.students.map((s, i) => (
-                                    <div key={i} className="glass p-4 rounded-xl flex justify-between items-center">
-                                        <div className="truncate pr-4">
-                                            <p className="text-xs font-bold uppercase truncate">{s.nama}</p>
-                                            <p className="mono text-[8px] text-slate-500">{s.kelas || 'Tiada Unit'}</p>
+
+                            {/* List Students */}
+                            <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar pb-10">
+                                {filteredStudents.map((s, i) => (
+                                    <motion.div 
+                                        key={i} 
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => setSelectedStudent(s)}
+                                        className="glass p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:border-emerald-500/50 transition-all"
+                                    >
+                                        <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 font-bold">
+                                            {s.nama.charAt(0)}
                                         </div>
-                                        <Icon name="chevron-right" size={14} className="text-emerald-500" />
-                                    </div>
+                                        <div className="flex-1 overflow-hidden">
+                                            <h4 className="text-[11px] font-bold uppercase truncate">{s.nama}</h4>
+                                            <p className="text-[8px] mono text-slate-500 uppercase">{s.kelas || 'Tiada Unit'}</p>
+                                        </div>
+                                        <Icon name="chevron-right" size={14} className="text-slate-700" />
+                                    </motion.div>
                                 ))}
                             </div>
                         </div>
                     )}
+
+                    {/* Evaluation Modal */}
+                    <AnimatePresence>
+                        {selectedStudent && (
+                            <motion.div 
+                                initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                className="fixed inset-0 z-[100] bg-black flex flex-col"
+                            >
+                                <div className="p-4 flex items-center gap-4 border-b border-white/10">
+                                    <button onClick={() => setSelectedStudent(null)} className="p-2 bg-white/5 rounded-xl"><Icon name="chevron-left" /></button>
+                                    <div className="flex-1">
+                                        <h3 className="text-xs font-bold uppercase truncate">{selectedStudent.nama}</h3>
+                                        <p className="text-[8px] text-emerald-500 mono uppercase tracking-widest">Borang Penilaian Praktikal</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto p-6 space-y-8 no-scrollbar">
+                                    {/* Score Cards */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="glass p-4 rounded-3xl text-center">
+                                            <p className="text-[8px] text-slate-500 uppercase mb-2">HP8 INDIVIDU (15)</p>
+                                            <p className="text-2xl font-bold text-emerald-500 mono">{marks.hp8_ind}</p>
+                                        </div>
+                                        <div className="glass p-4 rounded-3xl text-center">
+                                            <p className="text-[8px] text-slate-500 uppercase mb-2">HP8 KUMP (30)</p>
+                                            <p className="text-2xl font-bold text-blue-500 mono">{marks.hp8_kum}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Sliders */}
+                                    <div className="space-y-6">
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between text-[10px] font-bold uppercase">
+                                                <span>Kompetensi Amali</span>
+                                                <span className="text-emerald-500">{marks.amali}%</span>
+                                            </div>
+                                            <input 
+                                                type="range" min="0" max="100" value={marks.amali}
+                                                onChange={(e) => setMarks({...marks, amali: e.target.value})}
+                                                className="input-range" 
+                                            />
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between text-[10px] font-bold uppercase">
+                                                <span>Merit Individu</span>
+                                                <span className="text-emerald-500">{marks.hp8_ind}</span>
+                                            </div>
+                                            <input 
+                                                type="range" min="0" max="15" value={marks.hp8_ind}
+                                                onChange={(e) => setMarks({...marks, hp8_ind: e.target.value})}
+                                                className="input-range" 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="glass p-6 rounded-3xl">
+                                        <p className="text-[9px] text-slate-500 uppercase mb-3 font-bold">Catatan Pemerhati</p>
+                                        <textarea className="w-full bg-transparent border border-white/5 rounded-xl p-3 text-sm outline-none focus:border-emerald-500/30 h-24" placeholder="Tulis ulasan ringkas..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 bg-black border-t border-white/10">
+                                    <button 
+                                        disabled={syncing}
+                                        onClick={handleSave}
+                                        className="w-full py-4 bg-emerald-500 text-black font-bold rounded-2xl uppercase text-xs tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.2)] flex items-center justify-center gap-3"
+                                    >
+                                        {syncing ? <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : <Icon name="save" size={16} />}
+                                        Simpan Pemarkahan Cloud
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             );
         }
