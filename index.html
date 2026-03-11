@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem BIG 2026 - Live Sync</title>
+    <title>BIG 2026 LIVE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,127 +11,105 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
         .glass-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; border-radius: 12px; padding: 12px; width: 100%; text-align: center; }
+        select option { background-color: #1e293b; color: white; }
         .nav-active { background: linear-gradient(135deg, #6366f1, #a855f7); }
         .content-section { display: none; }
         .content-section.active { display: block; }
-        select option { background-color: #1e293b; color: white; }
     </style>
 </head>
 <body class="p-4 md:p-8">
-
-    <div id="loader" class="fixed inset-0 z-[100] glass flex-col items-center justify-center hidden">
+    <div id="loader" class="fixed inset-0 z-[100] glass flex-col items-center justify-center hidden" style="display:none">
         <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <nav class="max-w-4xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar">
-        <button onclick="nav('kuiz')" id="btn-kuiz" class="nav-btn glass px-6 py-3 text-[10px] font-bold whitespace-nowrap active nav-active">1. KUIZ</button>
-        <button onclick="nav('amali1')" id="btn-amali1" class="nav-btn glass px-6 py-3 text-[10px] font-bold whitespace-nowrap">2. AMALI 1</button>
-        <button onclick="nav('amali2')" id="btn-amali2" class="nav-btn glass px-6 py-3 text-[10px] font-bold whitespace-nowrap">3. AMALI 2</button>
+        <button onclick="nav('kuiz')" id="btn-kuiz" class="nav-btn glass px-6 py-3 text-[10px] font-bold active nav-active">KUIZ (30%)</button>
+        <button onclick="nav('amali1')" id="btn-amali1" class="nav-btn glass px-6 py-3 text-[10px] font-bold">AMALI 1 (20%)</button>
+        <button onclick="nav('hp3')" id="btn-hp3" class="nav-btn glass px-6 py-3 text-[10px] font-bold">HP3 (25%)</button>
+        <button onclick="nav('hp8')" id="btn-hp8" class="nav-btn glass px-6 py-3 text-[10px] font-bold">HP8 (45%)</button>
     </nav>
 
     <main class="max-w-4xl mx-auto">
-        <section id="kuiz" class="content-section active">
-            <div class="glass p-8">
-                <div class="flex flex-col md:flex-row gap-8 items-center mb-6">
-                    <div id="photo-kuiz" class="student-photo w-32 h-32 glass rounded-3xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30">
-                        <i class="fas fa-user-circle text-5xl opacity-10"></i>
-                    </div>
-                    <div class="flex-1 w-full space-y-4">
-                        <select onchange="loadStudent(this.value)" class="sel-student glass-input text-left"><option value="">PILIH PELAJAR</option></select>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="number" id="k1" placeholder="KUIZ 1 (MAX 15)" max="15" class="glass-input">
-                            <input type="number" id="k2" placeholder="KUIZ 2 (MAX 15)" max="15" class="glass-input">
-                        </div>
-                    </div>
+        <div class="glass p-8 mb-6">
+            <div class="flex flex-col md:flex-row gap-8 items-center mb-6">
+                <div id="photo-box" class="w-32 h-32 glass rounded-3xl overflow-hidden flex items-center justify-center border-2 border-white/10">
+                    <i class="fas fa-user-circle text-5xl opacity-10"></i>
                 </div>
-                <button onclick="save('kuiz')" class="w-full bg-indigo-600 p-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Simpan Markah Kuiz</button>
+                <select id="sel-student" onchange="loadStudent(this.value)" class="glass-input text-left"><option value="">PILIH PELAJAR</option></select>
             </div>
-        </section>
 
-        <section id="amali1" class="content-section">
-            <div class="glass p-8">
-                <div class="flex flex-col md:flex-row gap-8 items-center mb-6">
-                    <div id="photo-amali1" class="student-photo w-32 h-32 glass rounded-3xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30"><i class="fas fa-user-circle text-5xl opacity-10"></i></div>
-                    <div class="flex-1 w-full space-y-4">
-                        <select onchange="loadStudent(this.value)" class="sel-student glass-input text-left"><option value="">PILIH PELAJAR</option></select>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="number" id="a1_hp4" placeholder="HP4 (MAX 10)" max="10" class="glass-input">
-                            <input type="number" id="a1_hp5" placeholder="HP5 (MAX 10)" max="10" class="glass-input">
-                        </div>
-                    </div>
+            <section id="kuiz" class="content-section active">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <input type="number" id="k1" placeholder="K1 (15%)" max="15" class="glass-input">
+                    <input type="number" id="k2" placeholder="K2 (15%)" max="15" class="glass-input">
                 </div>
-                <button onclick="save('amali1')" class="w-full bg-purple-600 p-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Simpan Amali 1</button>
-            </div>
-        </section>
+                <button onclick="save()" class="w-full bg-indigo-600 p-4 rounded-2xl font-black">SIMPAN KUIZ</button>
+            </section>
 
-        <section id="amali2" class="content-section">
-            <div class="glass p-8">
-                <div class="flex flex-col md:flex-row gap-8 items-center mb-6">
-                    <div id="photo-amali2" class="student-photo w-32 h-32 glass rounded-3xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30"><i class="fas fa-user-circle text-5xl opacity-10"></i></div>
-                    <div class="flex-1 w-full space-y-4">
-                        <select onchange="loadStudent(this.value)" class="sel-student glass-input text-left"><option value="">PILIH PELAJAR</option></select>
-                        <div class="grid grid-cols-3 gap-2">
-                            <input type="number" id="hp3_p4" placeholder="HP3 (MAX 25)" max="25" class="glass-input">
-                            <input type="number" id="hp8_ind" placeholder="HP8 IND (MAX 15)" max="15" class="glass-input">
-                            <input type="number" id="hp8_kump" placeholder="HP8 KUMP (MAX 30)" max="30" class="glass-input">
-                        </div>
-                    </div>
+            <section id="amali1" class="content-section">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <input type="number" id="a1_hp4" placeholder="HP4 (10%)" max="10" class="glass-input">
+                    <input type="number" id="a1_hp5" placeholder="HP5 (10%)" max="10" class="glass-input">
                 </div>
-                <button onclick="save('amali2')" class="w-full bg-emerald-600 p-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Simpan Amali 2</button>
-            </div>
-        </section>
+                <button onclick="save()" class="w-full bg-purple-600 p-4 rounded-2xl font-black">SIMPAN AMALI 1</button>
+            </section>
+
+            <section id="hp3" class="content-section">
+                <div class="grid grid-cols-3 gap-2 mb-6">
+                    <input type="number" id="hp3_p4" placeholder="P4(10%)" max="10" class="glass-input">
+                    <input type="number" id="hp3_kat10" placeholder="KAT10(10%)" max="10" class="glass-input">
+                    <input type="number" id="hp3_a5" placeholder="A5(5%)" max="5" class="glass-input">
+                </div>
+                <button onclick="save()" class="w-full bg-emerald-600 p-4 rounded-2xl font-black">SIMPAN HP3</button>
+            </section>
+
+            <section id="hp8" class="content-section">
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <input type="number" id="hp8_ind_p4" placeholder="IND P4(10%)" max="10" class="glass-input">
+                    <input type="number" id="hp8_ind_kat10" placeholder="IND KAT10(5%)" max="5" class="glass-input">
+                </div>
+                <div class="grid grid-cols-3 gap-2 mb-6">
+                    <input type="number" id="hp8_kump_hp8" placeholder="KUMP HP8(10%)" max="10" class="glass-input">
+                    <input type="number" id="hp8_kump_p4" placeholder="KUMP P4(10%)" max="10" class="glass-input">
+                    <input type="number" id="hp8_kump_kat10" placeholder="KUMP KAT10(10%)" max="10" class="glass-input">
+                </div>
+                <button onclick="save()" class="w-full bg-blue-600 p-4 rounded-2xl font-black">SIMPAN HP8</button>
+            </section>
+        </div>
     </main>
 
     <script>
         const API = "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec"; 
-        let allStudents = [], existingScores = {}, currentUser = { email: "pensyarah@ipg.edu.my" };
+        let allStudents = [], existingScores = {};
 
         window.onload = async () => {
-            toggleLoader(true);
             const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_data' }) });
             const d = await res.json();
-            allStudents = d.data.students;
-            existingScores = d.data.scores;
-            document.querySelectorAll('.sel-student').forEach(sel => {
-                allStudents.forEach(s => sel.innerHTML += `<option value="${s.ID_SISTEM}">${s.Nama_Pelajar}</option>`);
-            });
-            toggleLoader(false);
+            allStudents = d.data.students; existingScores = d.data.scores;
+            const sel = document.getElementById('sel-student');
+            allStudents.forEach(s => sel.innerHTML += `<option value="${s.ID_SISTEM}">${s.Nama_Pelajar}</option>`);
         };
 
         async function loadStudent(id) {
             if(!id) return;
-            toggleLoader(true);
             const photoRes = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_photo', studentId: id }) });
             const photoData = await photoRes.json();
-            const imgHtml = photoData.result === 'success' ? `<img src="${photoData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-20 text-4xl"></i>';
-            document.querySelectorAll('.student-photo').forEach(box => box.innerHTML = imgHtml);
+            document.getElementById('photo-box').innerHTML = photoData.result === 'success' ? `<img src="${photoData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-20 text-4xl"></i>';
             
-            const score = existingScores[id] || [];
-            document.getElementById('k1').value = score[11] || "";
-            document.getElementById('k2').value = score[12] || "";
-            document.getElementById('a1_hp4').value = score[13] || "";
-            document.getElementById('a1_hp5').value = score[14] || "";
-            document.getElementById('hp3_p4').value = score[15] || "";
-            document.getElementById('hp8_ind').value = score[16] || "";
-            document.getElementById('hp8_kump').value = score[17] || "";
-            toggleLoader(false);
+            const s = existingScores[id] || [];
+            const fields = ['k1','k2','a1_hp4','a1_hp5','hp3_p4','hp3_kat10','hp3_a5','hp8_ind_p4','hp8_ind_kat10','hp8_kump_hp8','hp8_kump_p4','hp8_kump_kat10'];
+            fields.forEach((f, i) => { if(document.getElementById(f)) document.getElementById(f).value = s[i+5] || ""; });
         }
 
-        async function save(modul) {
-            const id = document.querySelector('.content-section.active .sel-student').value;
+        async function save() {
+            const id = document.getElementById('sel-student').value;
             if(!id) return alert("Pilih pelajar!");
-            toggleLoader(true);
             const student = allStudents.find(s => s.ID_SISTEM === id);
-            const formData = {
-                ID_SISTEM: id, Nama_Pelajar: student.Nama_Pelajar, Kelas: student.Kelas,
-                k1: document.getElementById('k1').value, k2: document.getElementById('k2').value,
-                a1_hp4: document.getElementById('a1_hp4').value, a1_hp5: document.getElementById('a1_hp5').value,
-                hp3_p4: document.getElementById('hp3_p4').value, hp8_ind: document.getElementById('hp8_ind').value, hp8_kump: document.getElementById('hp8_kump').value
-            };
-            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: currentUser.email, formData }) });
-            const r = await res.json();
-            if(r.result === 'success') alert("Berjaya disimpan!");
-            toggleLoader(false);
+            const formData = { ID_SISTEM: id, Nama_Pelajar: student.Nama_Pelajar, Kelas: student.Kelas };
+            ['k1','k2','a1_hp4','a1_hp5','hp3_p4','hp3_kat10','hp3_a5','hp8_ind_p4','hp8_ind_kat10','hp8_kump_hp8','hp8_kump_p4','hp8_kump_kat10'].forEach(f => { if(document.getElementById(f)) formData[f] = document.getElementById(f).value; });
+            
+            await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: "pensyarah@ipg.edu.my", formData }) });
+            alert("Berjaya disimpan secara LIVE!");
         }
 
         function nav(id) {
@@ -140,8 +118,6 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
             document.getElementById('btn-'+id).classList.add('nav-active');
         }
-
-        function toggleLoader(s) { document.getElementById('loader').classList.toggle('hidden', !s); }
     </script>
 </body>
 </html>
