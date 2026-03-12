@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIG 2026 LIVE ASSESSMENT</title>
+    <title>BIG 2026 LIVE Assessment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -19,49 +19,48 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <div id="loader" class="fixed inset-0 z-[100] glass flex-col items-center justify-center hidden" style="display:none">
+    <div id="loader" class="fixed inset-0 z-[100] glass flex flex-col items-center justify-center hidden">
         <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <nav class="max-w-5xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
-        <button onclick="nav('dashboard')" id="btn-dashboard" class="nav-btn glass px-6 py-3 text-[10px] font-bold active nav-active">DASHBOARD</button>
-        <button onclick="nav('kuiz')" id="btn-kuiz" class="nav-btn glass px-6 py-3 text-[10px] font-bold">1. KUIZ (30%)</button>
-        <button onclick="nav('amali1')" id="btn-amali1" class="nav-btn glass px-6 py-3 text-[10px] font-bold">2. AMALI 1 (20%)</button>
-        <button onclick="nav('hp3')" id="btn-hp3" class="nav-btn glass px-6 py-3 text-[10px] font-bold">3. HP3 (25%)</button>
-        <button onclick="nav('hp8')" id="btn-hp8" class="nav-btn glass px-6 py-3 text-[10px] font-bold">4. HP8 (45%)</button>
+        <button id="btn-dashboard" onclick="nav('dashboard')" class="nav-btn glass px-6 py-3 text-[10px] font-bold active nav-active">DASHBOARD</button>
+        <button id="btn-kuiz" onclick="nav('kuiz')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">1. KUIZ (30%)</button>
+        <button id="btn-amali1" onclick="nav('amali1')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">2. AMALI 1 (20%)</button>
+        <button id="btn-hp3" onclick="nav('hp3')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">3. HP3 (25%)</button>
+        <button id="btn-hp8" onclick="nav('hp8')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">4. HP8 (45%)</button>
     </nav>
 
     <main class="max-w-5xl mx-auto">
         
         <section id="dashboard" class="content-section active">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div class="glass p-6 text-center border-b-4 border-indigo-500">
-                    <p class="text-[10px] opacity-50 uppercase font-black">Bil. Pelajar</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 text-center">
+                <div class="glass p-6 border-b-4 border-indigo-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Bil. Pelajar</p>
                     <p id="total-stu" class="text-3xl font-black">0</p>
                 </div>
-                <div class="glass p-6 text-center border-b-4 border-emerald-500">
-                    <p class="text-[10px] opacity-50 uppercase font-black">Lulus (C+)</p>
+                <div class="glass p-6 border-b-4 border-emerald-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Lulus (C)</p>
                     <p id="pass-count" class="text-3xl font-black">0</p>
                 </div>
-                <div class="glass p-6 text-center border-b-4 border-red-500">
-                    <p class="text-[10px] opacity-50 uppercase font-black">Gagal (F)</p>
+                <div class="glass p-6 border-b-4 border-red-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Gagal (F)</p>
                     <p id="fail-count" class="text-3xl font-black">0</p>
                 </div>
-                <div class="glass p-6 text-center border-b-4 border-amber-500">
-                    <p class="text-[10px] opacity-50 uppercase font-black">Purata Kelas</p>
+                <div class="glass p-6 border-b-4 border-amber-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Purata</p>
                     <p id="avg-class" class="text-3xl font-black">0.0</p>
                 </div>
             </div>
-
             <div class="glass overflow-hidden">
-                <div class="p-6 bg-white/5 font-black uppercase tracking-widest text-xs border-b border-white/10">Analisis Prestasi LIVE</div>
+                <div class="p-6 bg-white/5 font-black text-xs uppercase border-b border-white/10 tracking-widest">Analisis Prestasi LIVE</div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
                         <thead class="bg-indigo-600/20 text-indigo-300">
                             <tr>
-                                <th class="p-5">Nama Pelajar</th>
-                                <th class="p-5 text-center">Teori (30%)</th>
-                                <th class="p-5 text-center">Amali (70%)</th>
+                                <th class="p-5">Pelajar</th>
+                                <th class="p-5 text-center">Teori(30%)</th>
+                                <th class="p-5 text-center">Amali(90%)</th>
                                 <th class="p-5 text-center">Jumlah</th>
                                 <th class="p-5 text-center">Gred</th>
                             </tr>
@@ -72,59 +71,88 @@
             </div>
         </section>
 
-        <section id="assessment-container" class="glass p-8 hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8 pb-8 border-b border-white/10">
-                <div class="flex gap-6 items-center">
-                    <div id="photo-box" class="w-24 h-24 glass rounded-2xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30">
-                        <i class="fas fa-user-circle text-4xl opacity-10"></i>
+        <section id="input-area" class="content-section">
+            <div class="glass p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <select id="sel-class" onchange="filterStudents(this.value)" class="glass-input text-xs uppercase"><option value="">-- PILIH KELAS --</option></select>
+                    <select id="sel-student" onchange="loadStudent(this.value)" class="glass-input text-xs uppercase"><option value="">-- PILIH PELAJAR --</option></select>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 items-center mb-8 border-b border-white/10 pb-8">
+                    <div id="photo-box" class="w-32 h-32 glass rounded-3xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30">
+                        <i class="fas fa-user-circle text-5xl opacity-10"></i>
                     </div>
-                    <div>
-                        <h2 id="display-name" class="font-black text-lg uppercase tracking-tight">Pilih Pelajar</h2>
-                        <p id="display-id" class="text-[10px] opacity-40 font-bold">ID SISTEM</p>
+                    <div class="text-center md:text-left">
+                        <h2 id="display-name" class="text-xl font-black uppercase tracking-tight">Nama Pelajar</h2>
+                        <p id="display-id" class="text-xs opacity-40 font-bold">ID SISTEM</p>
                     </div>
                 </div>
-                <div class="space-y-4">
-                    <select id="sel-class" onchange="filterStudents(this.value)" class="glass-input text-left text-xs uppercase"><option value="">-- FILTER KELAS --</option></select>
-                    <select id="sel-student" onchange="loadStudent(this.value)" class="glass-input text-left text-xs uppercase"><option value="">PILIH NAMA</option></select>
+
+                <div id="form-kuiz" class="sub-form hidden">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUIZ 1 (15%)</label><input type="number" id="k1" max="15" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUIZ 2 (15%)</label><input type="number" id="k2" max="15" class="glass-input"></div>
+                    </div>
+                    <button onclick="save()" class="w-full bg-indigo-600 p-4 rounded-2xl font-black">SIMPAN KUIZ</button>
+                </div>
+
+                <div id="form-amali1" class="sub-form hidden">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div><label class="text-[9px] opacity-40 block mb-1">HP4 INTERPERSONAL (10%)</label><input type="number" id="a1_hp4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">HP5 KOMUNIKASI (10%)</label><input type="number" id="a1_hp5" max="10" class="glass-input"></div>
+                    </div>
+                    <button onclick="save()" class="w-full bg-purple-600 p-4 rounded-2xl font-black">SIMPAN AMALI 1</button>
+                </div>
+
+                <div id="form-hp3" class="sub-form hidden">
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        <div><label class="text-[9px] opacity-40 block mb-1">P4 MEKANISME (10%)</label><input type="number" id="hp3_p4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KAT10 T.JAWAB (10%)</label><input type="number" id="hp3_kat10" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">A5 NILAI (5%)</label><input type="number" id="hp3_a5" max="5" class="glass-input"></div>
+                    </div>
+                    <button onclick="save()" class="w-full bg-emerald-600 p-4 rounded-2xl font-black">SIMPAN HP3</button>
+                </div>
+
+                <div id="form-hp8" class="sub-form hidden">
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div><label class="text-[9px] opacity-40 block mb-1">IND P4 (10%)</label><input type="number" id="hp8_ind_p4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">IND KAT10 (5%)</label><input type="number" id="hp8_ind_kat10" max="5" class="glass-input"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUMP HP8 (10%)</label><input type="number" id="hp8_kump_hp8" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUMP P4 (10%)</label><input type="number" id="hp8_kump_p4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUMP KAT10 (10%)</label><input type="number" id="hp8_kump_kat10" max="10" class="glass-input"></div>
+                    </div>
+                    <button onclick="save()" class="w-full bg-blue-600 p-4 rounded-2xl font-black">SIMPAN HP8</button>
                 </div>
             </div>
-
-            <div id="form-content">
-                <div id="kuiz-form" class="sub-form active">
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <input type="number" id="k1" placeholder="K1 (15%)" max="15" class="glass-input text-xl font-bold">
-                        <input type="number" id="k2" placeholder="K2 (15%)" max="15" class="glass-input text-xl font-bold">
-                    </div>
-                    <button onclick="save()" class="w-full bg-indigo-600 p-4 rounded-2xl font-black shadow-lg">SIMPAN KUIZ</button>
-                </div>
-                </div>
         </section>
     </main>
 
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec"; 
+        const API = "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec";
         let allStudents = [], existingScores = {};
 
         window.onload = async () => { toggleLoader(true); await fetchData(); toggleLoader(false); };
 
         async function fetchData() {
-            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_data' }) });
-            const d = await res.json();
-            allStudents = d.data.students; existingScores = d.data.scores;
-            updateDashboard();
-            populateFilters();
-        }
-
-        function populateFilters() {
-            const classes = [...new Set(allStudents.map(s => s.Kelas))].sort();
-            const selClass = document.getElementById('sel-class');
-            classes.forEach(c => selClass.innerHTML += `<option value="${c}">${c}</option>`);
-            filterStudents("");
+            try {
+                const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_data' }) });
+                const d = await res.json();
+                allStudents = d.data.students; existingScores = d.data.scores;
+                
+                const classes = [...new Set(allStudents.map(s => s.Kelas))].sort();
+                const classSel = document.getElementById('sel-class');
+                classes.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
+                
+                updateDashboard();
+                filterStudents("");
+            } catch (e) { alert("Ralat memuatkan data!"); }
         }
 
         function filterStudents(cls) {
             const sel = document.getElementById('sel-student');
-            sel.innerHTML = '<option value="">PILIH NAMA</option>';
+            sel.innerHTML = '<option value="">-- PILIH PELAJAR --</option>';
             const filtered = cls ? allStudents.filter(s => s.Kelas === cls) : allStudents;
             filtered.forEach(s => sel.innerHTML += `<option value="${s.ID_SISTEM}">${s.Nama_Pelajar}</option>`);
         }
@@ -137,14 +165,32 @@
             document.getElementById('display-id').textContent = student.ID_SISTEM;
 
             const photoRes = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_photo', studentId: id }) });
-            const pData = await photoRes.json();
-            document.getElementById('photo-box').innerHTML = pData.result === 'success' ? `<img src="${pData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-10 text-3xl"></i>';
-
+            const photoData = await photoRes.json();
+            document.getElementById('photo-box').innerHTML = photoData.result === 'success' ? `<img src="${photoData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-10 text-4xl"></i>';
+            
             const s = existingScores[id] || [];
-            // Map data sedia ada ke input mengikut kolum F-Q
-            document.getElementById('k1').value = s[5] || "";
-            document.getElementById('k2').value = s[6] || "";
-            // ... Petakan baki ID amali
+            const fields = ['k1','k2','a1_hp4','a1_hp5','hp3_p4','hp3_kat10','hp3_a5','hp8_ind_p4','hp8_ind_kat10','hp8_kump_hp8','hp8_kump_p4','hp8_kump_kat10'];
+            fields.forEach((f, i) => { if(document.getElementById(f)) document.getElementById(f).value = s[i+5] || ""; });
+            toggleLoader(false);
+        }
+
+        async function save() {
+            const id = document.getElementById('sel-student').value;
+            if(!id) return alert("Pilih pelajar!");
+            toggleLoader(true);
+            const student = allStudents.find(s => s.ID_SISTEM === id);
+            const formData = { 
+                ID_SISTEM: id, Nama_Pelajar: student.Nama_Pelajar, Kelas: student.Kelas,
+                k1: document.getElementById('k1').value, k2: document.getElementById('k2').value,
+                a1_hp4: document.getElementById('a1_hp4').value, a1_hp5: document.getElementById('a1_hp5').value,
+                hp3_p4: document.getElementById('hp3_p4').value, hp3_kat10: document.getElementById('hp3_kat10').value, hp3_a5: document.getElementById('hp3_a5').value,
+                hp8_ind_p4: document.getElementById('hp8_ind_p4').value, hp8_ind_kat10: document.getElementById('hp8_ind_kat10').value,
+                hp8_kump_hp8: document.getElementById('hp8_kump_hp8').value, hp8_kump_p4: document.getElementById('hp8_kump_p4').value, hp8_kump_kat10: document.getElementById('hp8_kump_kat10').value
+            };
+            
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: "pensyarah@ipg.edu.my", formData }) });
+            const r = await res.json();
+            if(r.result === 'success') { alert("BERJAYA DISIMPAN!"); await fetchData(); }
             toggleLoader(false);
         }
 
@@ -154,21 +200,20 @@
             let totalMarks = 0, passes = 0, fails = 0;
 
             allStudents.forEach(s => {
-                const score = existingScores[s.ID_SISTEM] || new Array(20).fill(0);
-                const teoria = (parseFloat(score[5])||0) + (parseFloat(score[6])||0);
-                const amalia = 0; // Tambah jumlah amali
-                const total = parseFloat(score[17]) || 0;
-                const gred = score[18] || "F";
+                const sc = existingScores[s.ID_SISTEM] || new Array(20).fill(0);
+                const teori = (parseFloat(sc[5])||0) + (parseFloat(sc[6])||0);
+                const amali = (parseFloat(sc[7])||0) + (parseFloat(sc[8])||0) + (parseFloat(sc[9])||0) + (parseFloat(sc[10])||0) + (parseFloat(sc[11])||0) + (parseFloat(sc[12])||0) + (parseFloat(sc[13])||0) + (parseFloat(sc[14])||0) + (parseFloat(sc[15])||0) + (parseFloat(sc[16])||0);
+                const total = parseFloat(sc[17]) || 0;
                 
-                if(total >= 55) passes++; else if(total > 0) fails++;
+                if(total >= 50) passes++; else if(total > 0) fails++;
                 totalMarks += total;
 
                 tbody.innerHTML += `<tr>
                     <td class="p-5 font-bold">${s.Nama_Pelajar}</td>
-                    <td class="p-5 text-center opacity-50">${teoria}/30</td>
-                    <td class="p-5 text-center opacity-50">${amalia}/70</td>
-                    <td class="p-5 text-center font-black">${total}</td>
-                    <td class="p-5 text-center"><span class="px-3 py-1 glass rounded-lg text-indigo-300 font-bold">${gred}</span></td>
+                    <td class="p-5 text-center opacity-50">${teori.toFixed(1)}/30</td>
+                    <td class="p-5 text-center opacity-50">${amali.toFixed(1)}/90</td>
+                    <td class="p-5 text-center font-black">${total.toFixed(2)}</td>
+                    <td class="p-5 text-center"><span class="px-3 py-1 glass rounded-lg text-indigo-300 font-bold">${sc[18]||'F'}</span></td>
                 </tr>`;
             });
 
@@ -180,26 +225,18 @@
 
         function nav(id) {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id === 'dashboard' ? 'dashboard' : 'assessment-container').classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
             document.getElementById('btn-'+id).classList.add('nav-active');
-            // Logik paparan form spesifik...
-        }
-
-        async function save() {
-            const id = document.getElementById('sel-student').value;
-            if(!id) return alert("Pilih pelajar!");
-            toggleLoader(true);
-            const formData = {
-                ID_SISTEM: id,
-                k1: document.getElementById('k1').value,
-                k2: document.getElementById('k2').value
-                // Tambah data amali lain...
-            };
-            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: "admin@ipg.edu.my", formData }) });
-            const result = await res.json();
-            if(result.result === 'success') { alert("Berjaya Disimpan!"); await fetchData(); }
-            toggleLoader(false);
+            
+            if(id === 'dashboard') {
+                document.getElementById('dashboard').classList.add('active');
+                document.getElementById('input-area').classList.remove('active');
+            } else {
+                document.getElementById('dashboard').classList.remove('active');
+                document.getElementById('input-area').classList.add('active');
+                document.querySelectorAll('.sub-form').forEach(f => f.classList.add('hidden'));
+                document.getElementById('form-'+id).classList.remove('hidden');
+            }
         }
 
         function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
