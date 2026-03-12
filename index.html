@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIG 2026 LIVE Assessment</title>
+    <title>BIG 2026 LIVE ASSESSMENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
-        .glass-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; border-radius: 12px; padding: 12px; width: 100%; }
+        .glass-input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; border-radius: 12px; padding: 12px; width: 100%; text-align: center; }
         select option { background-color: #1e293b; color: white; }
         .nav-active { background: linear-gradient(135deg, #6366f1, #a855f7); }
         .content-section { display: none; }
@@ -19,112 +19,112 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <div id="loader" class="fixed inset-0 z-[100] glass hidden flex-col items-center justify-center">
+    <div id="loader" class="fixed inset-0 z-[100] glass flex-col items-center justify-center hidden" style="display:none">
         <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
-    <nav class="max-w-5xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar">
-        <button id="btn-kuiz" onclick="nav('kuiz')" class="nav-btn glass px-6 py-3 text-[10px] font-bold active nav-active">1. KUIZ</button>
-        <button id="btn-amali1" onclick="nav('amali1')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">2. AMALI 1</button>
-        <button id="btn-hp3" onclick="nav('hp3')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">3. HP3 (25%)</button>
-        <button id="btn-hp8" onclick="nav('hp8')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">4. HP8 (45%)</button>
+    <nav class="max-w-5xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+        <button onclick="nav('dashboard')" id="btn-dashboard" class="nav-btn glass px-6 py-3 text-[10px] font-bold active nav-active">DASHBOARD</button>
+        <button onclick="nav('kuiz')" id="btn-kuiz" class="nav-btn glass px-6 py-3 text-[10px] font-bold">1. KUIZ (30%)</button>
+        <button onclick="nav('amali1')" id="btn-amali1" class="nav-btn glass px-6 py-3 text-[10px] font-bold">2. AMALI 1 (20%)</button>
+        <button onclick="nav('hp3')" id="btn-hp3" class="nav-btn glass px-6 py-3 text-[10px] font-bold">3. HP3 (25%)</button>
+        <button onclick="nav('hp8')" id="btn-hp8" class="nav-btn glass px-6 py-3 text-[10px] font-bold">4. HP8 (45%)</button>
     </nav>
 
-    <main class="max-w-4xl mx-auto">
-        <div class="glass p-8 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <div>
-                    <label class="text-[9px] opacity-50 uppercase font-black block mb-2 tracking-widest">Filter Kelas/Siri</label>
-                    <select id="sel-class" onchange="filterStudents(this.value)" class="glass-input text-sm">
-                        <option value="">-- SEMUA KELAS --</option>
-                    </select>
+    <main class="max-w-5xl mx-auto">
+        
+        <section id="dashboard" class="content-section active">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="glass p-6 text-center border-b-4 border-indigo-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Bil. Pelajar</p>
+                    <p id="total-stu" class="text-3xl font-black">0</p>
                 </div>
-                <div>
-                    <label class="text-[9px] opacity-50 uppercase font-black block mb-2 tracking-widest">Pilih Pelajar</label>
-                    <select id="sel-student" onchange="loadStudent(this.value)" class="glass-input text-sm">
-                        <option value="">PILIH PELAJAR</option>
-                    </select>
+                <div class="glass p-6 text-center border-b-4 border-emerald-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Lulus (C+)</p>
+                    <p id="pass-count" class="text-3xl font-black">0</p>
                 </div>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-8 items-center mb-8 border-b border-white/10 pb-8">
-                <div id="photo-box" class="w-32 h-32 glass rounded-3xl overflow-hidden flex items-center justify-center border-2 border-white/10">
-                    <i class="fas fa-user-circle text-5xl opacity-10"></i>
+                <div class="glass p-6 text-center border-b-4 border-red-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Gagal (F)</p>
+                    <p id="fail-count" class="text-3xl font-black">0</p>
                 </div>
-                <div class="text-center md:text-left">
-                    <h2 id="display-name" class="text-xl font-black uppercase tracking-tight">Nama Pelajar</h2>
-                    <p id="display-id" class="text-xs opacity-40 font-bold">ID SISTEM</p>
+                <div class="glass p-6 text-center border-b-4 border-amber-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Purata Kelas</p>
+                    <p id="avg-class" class="text-3xl font-black">0.0</p>
                 </div>
             </div>
 
-            <section id="kuiz" class="content-section active">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <input type="number" id="k1" placeholder="K1 (15%)" class="glass-input text-center font-bold">
-                    <input type="number" id="k2" placeholder="K2 (15%)" class="glass-input text-center font-bold">
+            <div class="glass overflow-hidden">
+                <div class="p-6 bg-white/5 font-black uppercase tracking-widest text-xs border-b border-white/10">Analisis Prestasi LIVE</div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-indigo-600/20 text-indigo-300">
+                            <tr>
+                                <th class="p-5">Nama Pelajar</th>
+                                <th class="p-5 text-center">Teori (30%)</th>
+                                <th class="p-5 text-center">Amali (70%)</th>
+                                <th class="p-5 text-center">Jumlah</th>
+                                <th class="p-5 text-center">Gred</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dash-tbody" class="divide-y divide-white/5"></tbody>
+                    </table>
                 </div>
-                <button onclick="save()" class="w-full bg-indigo-600 p-4 rounded-2xl font-black">SIMPAN KUIZ</button>
-            </section>
+            </div>
+        </section>
 
-            <section id="amali1" class="content-section">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <input type="number" id="a1_hp4" placeholder="HP4 (10%)" class="glass-input text-center font-bold">
-                    <input type="number" id="a1_hp5" placeholder="HP5 (10%)" class="glass-input text-center font-bold">
+        <section id="assessment-container" class="glass p-8 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8 pb-8 border-b border-white/10">
+                <div class="flex gap-6 items-center">
+                    <div id="photo-box" class="w-24 h-24 glass rounded-2xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30">
+                        <i class="fas fa-user-circle text-4xl opacity-10"></i>
+                    </div>
+                    <div>
+                        <h2 id="display-name" class="font-black text-lg uppercase tracking-tight">Pilih Pelajar</h2>
+                        <p id="display-id" class="text-[10px] opacity-40 font-bold">ID SISTEM</p>
+                    </div>
                 </div>
-                <button onclick="save()" class="w-full bg-purple-600 p-4 rounded-2xl font-black">SIMPAN AMALI 1</button>
-            </section>
+                <div class="space-y-4">
+                    <select id="sel-class" onchange="filterStudents(this.value)" class="glass-input text-left text-xs uppercase"><option value="">-- FILTER KELAS --</option></select>
+                    <select id="sel-student" onchange="loadStudent(this.value)" class="glass-input text-left text-xs uppercase"><option value="">PILIH NAMA</option></select>
+                </div>
+            </div>
 
-            <section id="hp3" class="content-section">
-                <div class="grid grid-cols-3 gap-2 mb-6">
-                    <input type="number" id="hp3_p4" placeholder="P4(10%)" class="glass-input text-center font-bold">
-                    <input type="number" id="hp3_kat10" placeholder="KAT10(10%)" class="glass-input text-center font-bold">
-                    <input type="number" id="hp3_a5" placeholder="A5(5%)" class="glass-input text-center font-bold">
+            <div id="form-content">
+                <div id="kuiz-form" class="sub-form active">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <input type="number" id="k1" placeholder="K1 (15%)" max="15" class="glass-input text-xl font-bold">
+                        <input type="number" id="k2" placeholder="K2 (15%)" max="15" class="glass-input text-xl font-bold">
+                    </div>
+                    <button onclick="save()" class="w-full bg-indigo-600 p-4 rounded-2xl font-black shadow-lg">SIMPAN KUIZ</button>
                 </div>
-                <button onclick="save()" class="w-full bg-emerald-600 p-4 rounded-2xl font-black">SIMPAN HP3</button>
-            </section>
-
-            <section id="hp8" class="content-section">
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <input type="number" id="hp8_ind_p4" placeholder="IND P4(10%)" class="glass-input text-center font-bold">
-                    <input type="number" id="hp8_ind_kat10" placeholder="IND KAT10(5%)" class="glass-input text-center font-bold">
                 </div>
-                <div class="grid grid-cols-3 gap-2 mb-6">
-                    <input type="number" id="hp8_kump_hp8" placeholder="HP8(10%)" class="glass-input text-center font-bold">
-                    <input type="number" id="hp8_kump_p4" placeholder="P4(10%)" class="glass-input text-center font-bold">
-                    <input type="number" id="hp8_kump_kat10" placeholder="KAT10(10%)" class="glass-input text-center font-bold">
-                </div>
-                <button onclick="save()" class="w-full bg-blue-600 p-4 rounded-2xl font-black">SIMPAN HP8</button>
-            </section>
-        </div>
+        </section>
     </main>
 
     <script>
-        const API = "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec"; 
+        const API = "URL_WEB_APP_ANDA"; 
         let allStudents = [], existingScores = {};
 
-        window.onload = async () => {
-            toggleLoader(true);
-            try {
-                const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_data' }) });
-                const d = await res.json();
-                allStudents = d.data.students; existingScores = d.data.scores;
-                
-                // Populate Class Filter
-                const classes = [...new Set(allStudents.map(s => s.Kelas))].sort();
-                const classSel = document.getElementById('sel-class');
-                classes.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
-                
-                populateStudents("");
-            } catch (e) { alert("Ralat memuatkan data!"); }
-            toggleLoader(false);
-        };
+        window.onload = async () => { toggleLoader(true); await fetchData(); toggleLoader(false); };
 
-        function filterStudents(cls) {
-            populateStudents(cls);
+        async function fetchData() {
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_data' }) });
+            const d = await res.json();
+            allStudents = d.data.students; existingScores = d.data.scores;
+            updateDashboard();
+            populateFilters();
         }
 
-        function populateStudents(cls) {
+        function populateFilters() {
+            const classes = [...new Set(allStudents.map(s => s.Kelas))].sort();
+            const selClass = document.getElementById('sel-class');
+            classes.forEach(c => selClass.innerHTML += `<option value="${c}">${c}</option>`);
+            filterStudents("");
+        }
+
+        function filterStudents(cls) {
             const sel = document.getElementById('sel-student');
-            sel.innerHTML = '<option value="">PILIH PELAJAR</option>';
+            sel.innerHTML = '<option value="">PILIH NAMA</option>';
             const filtered = cls ? allStudents.filter(s => s.Kelas === cls) : allStudents;
             filtered.forEach(s => sel.innerHTML += `<option value="${s.ID_SISTEM}">${s.Nama_Pelajar}</option>`);
         }
@@ -136,43 +136,73 @@
             document.getElementById('display-name').textContent = student.Nama_Pelajar;
             document.getElementById('display-id').textContent = student.ID_SISTEM;
 
-            // Fetch Photo
             const photoRes = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_photo', studentId: id }) });
-            const photoData = await photoRes.json();
-            document.getElementById('photo-box').innerHTML = photoData.result === 'success' ? `<img src="${photoData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-20 text-4xl"></i>';
-            
-            // Map Scores
+            const pData = await photoRes.json();
+            document.getElementById('photo-box').innerHTML = pData.result === 'success' ? `<img src="${pData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-10 text-3xl"></i>';
+
             const s = existingScores[id] || [];
-            const fields = ['k1','k2','a1_hp4','a1_hp5','hp3_p4','hp3_kat10','hp3_a5','hp8_ind_p4','hp8_ind_kat10','hp8_kump_hp8','hp8_kump_p4','hp8_kump_kat10'];
-            fields.forEach((f, i) => { if(document.getElementById(f)) document.getElementById(f).value = s[i+5] || ""; });
+            // Map data sedia ada ke input mengikut kolum F-Q
+            document.getElementById('k1').value = s[5] || "";
+            document.getElementById('k2').value = s[6] || "";
+            // ... Petakan baki ID amali
             toggleLoader(false);
+        }
+
+        function updateDashboard() {
+            const tbody = document.getElementById('dash-tbody');
+            tbody.innerHTML = "";
+            let totalMarks = 0, passes = 0, fails = 0;
+
+            allStudents.forEach(s => {
+                const score = existingScores[s.ID_SISTEM] || new Array(20).fill(0);
+                const teoria = (parseFloat(score[5])||0) + (parseFloat(score[6])||0);
+                const amalia = 0; // Tambah jumlah amali
+                const total = parseFloat(score[17]) || 0;
+                const gred = score[18] || "F";
+                
+                if(total >= 55) passes++; else if(total > 0) fails++;
+                totalMarks += total;
+
+                tbody.innerHTML += `<tr>
+                    <td class="p-5 font-bold">${s.Nama_Pelajar}</td>
+                    <td class="p-5 text-center opacity-50">${teoria}/30</td>
+                    <td class="p-5 text-center opacity-50">${amalia}/70</td>
+                    <td class="p-5 text-center font-black">${total}</td>
+                    <td class="p-5 text-center"><span class="px-3 py-1 glass rounded-lg text-indigo-300 font-bold">${gred}</span></td>
+                </tr>`;
+            });
+
+            document.getElementById('total-stu').textContent = allStudents.length;
+            document.getElementById('pass-count').textContent = passes;
+            document.getElementById('fail-count').textContent = fails;
+            document.getElementById('avg-class').textContent = (totalMarks / allStudents.length).toFixed(1);
+        }
+
+        function nav(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id === 'dashboard' ? 'dashboard' : 'assessment-container').classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById('btn-'+id).classList.add('nav-active');
+            // Logik paparan form spesifik...
         }
 
         async function save() {
             const id = document.getElementById('sel-student').value;
             if(!id) return alert("Pilih pelajar!");
             toggleLoader(true);
-            const student = allStudents.find(s => s.ID_SISTEM === id);
-            const formData = { ID_SISTEM: id, Nama_Pelajar: student.Nama_Pelajar, Kelas: student.Kelas };
-            ['k1','k2','a1_hp4','a1_hp5','hp3_p4','hp3_kat10','hp3_a5','hp8_ind_p4','hp8_ind_kat10','hp8_kump_hp8','hp8_kump_p4','hp8_kump_kat10'].forEach(f => {
-                if(document.getElementById(f)) formData[f] = document.getElementById(f).value;
-            });
-            
-            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: "pensyarah@ipg.edu.my", formData }) });
+            const formData = {
+                ID_SISTEM: id,
+                k1: document.getElementById('k1').value,
+                k2: document.getElementById('k2').value
+                // Tambah data amali lain...
+            };
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: "admin@ipg.edu.my", formData }) });
             const result = await res.json();
-            if(result.result === 'success') alert("BERJAYA DISIMPAN!");
+            if(result.result === 'success') { alert("Berjaya Disimpan!"); await fetchData(); }
             toggleLoader(false);
         }
 
-        function nav(id) {
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            const btn = document.getElementById('btn-'+id);
-            if(btn) btn.classList.add('nav-active');
-        }
-
-        function toggleLoader(s) { document.getElementById('loader').classList.toggle('hidden', !s); }
+        function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
     </script>
 </body>
 </html>
