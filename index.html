@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem e-BIG IPGKDA 48.5</title>
+    <title>Sistem e-BIG IPGKDA 48.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -19,9 +19,10 @@
         .input-mark:focus { border-color: #3b82f6; background: white; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .avatar-main { width: 150px; height: 200px; border-radius: 20px; object-fit: cover; border: 5px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: #f3f4f6; }
         .avatar-peer { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; background: #eef2ff; }
-        .section-header { font-size: 10px; font-weight: 800; color: #1e3a8a; margin-bottom: 10px; border-left: 4px solid #1e3a8a; padding-left: 10px; text-transform: uppercase; }
+        .section-header { font-size: 11px; font-weight: 800; color: #000; margin-bottom: 10px; border-left: 4px solid #1e3a8a; padding-left: 10px; text-transform: uppercase; }
         .footer-credit { font-size: 8px; color: #9ca3af; font-weight: 600; margin-top: 30px; text-transform: uppercase; text-align: center; line-height: 1.5; }
         .radar-container { width: 100%; max-width: 280px; margin: 0 auto; height: 260px; }
+        .kriteria-label { font-size: 10px; color: #000; font-weight: 700; display: block; text-transform: uppercase; margin-top: 4px; line-height: 1.2; }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -112,7 +113,7 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div><label class="text-[10px] font-bold text-gray-400 uppercase">Kumpulan BIG</label><select id="sel-kump" onchange="updateFilters()" class="w-full p-4 rounded-2xl border font-bold bg-white shadow-sm"></select></div>
-                        <div><label class="text-[10px] font-bold text-gray-400 uppercase">Kod Carian (C4, M1, etc)</label><input type="text" id="search-code" oninput="updateFilters()" class="w-full p-4 rounded-2xl border font-bold bg-white shadow-sm text-center uppercase" placeholder="Kod"></div>
+                        <div><label class="text-[10px] font-bold text-gray-400 uppercase">Kod Carian</label><input type="text" id="search-code" oninput="updateFilters()" class="w-full p-4 rounded-2xl border font-bold bg-white shadow-sm text-center uppercase" placeholder="Kod"></div>
                     </div>
                     <div><label class="text-[10px] font-bold text-gray-400 uppercase">Pilih Pelajar</label><select id="sel-student" onchange="loadGradingForm()" class="w-full p-4 rounded-2xl border font-bold bg-white shadow-md"></select></div>
                 </div>
@@ -187,7 +188,7 @@
             Object.keys(t3Items).forEach(cat => {
                 t3Items[cat].forEach(k => {
                     const box = (cat === 'hp3') ? h3 : (cat === 'hp8i' ? h8i : h8k);
-                    box.innerHTML += `<div><label class="text-[8px] font-bold text-gray-400">K${k.id}(${k.max})</label><input type="number" step="0.1" id="t3_k${k.id}" class="input-mark" placeholder="0"><span class="text-[6px] text-gray-300 block uppercase font-bold tracking-tighter">${k.name}</span></div>`;
+                    box.innerHTML += `<div><label class="text-[8px] font-bold text-blue-800">K${k.id}(${k.max})</label><input type="number" step="0.1" id="t3_k${k.id}" class="input-mark" placeholder="0"><span class="kriteria-label">${k.name}</span></div>`;
                 });
             });
         };
@@ -201,7 +202,7 @@
                     if (mode === 'lecturer') loadLecturerView(res);
                     else { currentStudent = res.data; loadStudentView(res.data); }
                 } else alert(res.message);
-            }).catch(err => { showLoader(false); alert("Ralat sambungan: Sila semak pautan URL Web App anda."); });
+            }).catch(err => { showLoader(false); alert("Ralat sambungan."); });
         }
 
         function switchTab(t) {
@@ -303,7 +304,6 @@
                     document.getElementById('grading-area').classList.remove('hidden');
                     if(res.peer_averages) updateRadarChart(res.peer_averages);
                     
-                    // Isi Markah sedia ada (Dalam peratusan 70%)
                     if(res.data.t1) { 
                         document.getElementById('t1_m1').value = res.data.t1.m1; 
                         document.getElementById('t1_m2').value = res.data.t1.m2; 
@@ -313,9 +313,21 @@
                         document.getElementById('t2_m2').value = res.data.t2.m2; 
                         document.getElementById('t2_m3').value = res.data.t2.m3; 
                     }
-                    for(let i=1; i<=12; i++){ 
-                        const el = document.getElementById('t3_k'+i); 
-                        if(el) el.value = res.data.t3.hp[i-1] || 0; 
+
+                    // --- LOGIK MARKAH DEFAULT T3 (WAJARAN 70% PER ITEM) ---
+                    const flatT3 = [...t3Items.hp3, ...t3Items.hp8i, ...t3Items.hp8k];
+                    for(let i=0; i < flatT3.length; i++){ 
+                        const k = flatT3[i];
+                        const el = document.getElementById('t3_k' + k.id); 
+                        if(el) {
+                            let val = res.data.t3.hp[k.id-1];
+                            // Jika 0 atau kosong, masukkan 70% daripada markah maksimum item
+                            if (!val || Number(val) === 0) {
+                                el.value = (k.max * 0.7).toFixed(1); 
+                            } else {
+                                el.value = val;
+                            }
+                        }
                     }
                     switchMarkTab('t3'); 
                 }
