@@ -1,840 +1,305 @@
-<!DOCTYPE html>
-<html lang="ms">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>e-BIG IPGKDA v48.0</title>
-    
-    <!-- Dependencies -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #0f172a;
-            margin: 0;
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .giant-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 12px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            outline: none;
-        }
-        .giant-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 32px;
-            height: 32px;
-            background: #1e3a8a;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 4px solid #ffffff;
-            box-shadow: 0 0 15px rgba(30, 58, 138, 0.2);
-            transition: transform 0.1s;
-        }
-        .giant-slider::-webkit-slider-thumb:active {
-            transform: scale(1.15);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #1e293b;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .form-input:focus {
-            border-color: #1e3a8a;
-            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
-        }
-        .form-input:disabled {
-            background-color: #f1f5f9;
-            color: #94a3b8;
-            cursor: not-allowed;
-        }
-
-        #reader {
-            width: 100%;
-            border: none !important;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIG 2026 LIVE ASSESSMENT</title>
+    <title>BIG 2026 LIVE Assessment</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+@@ -19,49 +19,48 @@
 </head>
-<body>
-    <div id="root"></div>
+<body class="p-4 md:p-8">
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo, useCallback, useRef } = React;
-        const { motion, AnimatePresence } = window.Motion;
+    <div id="loader" class="fixed inset-0 z-[100] glass flex-col items-center justify-center hidden" style="display:none">
+    <div id="loader" class="fixed inset-0 z-[100] glass flex flex-col items-center justify-center hidden">
+<div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+</div>
 
-        // --- KONFIGURASI GLOBAL ---
-        const GOOGLE_SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec"; 
-        const CSV_STUDENTS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTK1rQeMq2o_-KpvnhW8aitybwhR0cud8bxLgc7rs46GFba0lFnzsepdSHBR4qTYyP0eapgbbHXtsOG/pub?output=csv";
-        const CSV_LECTURERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTK1rQeMq2o_-KpvnhW8aitybwhR0cud8bxLgc7rs46GFba0lFnzsepdSHBR4qTYyP0eapgbbHXtsOG/pub?gid=465305263&single=true&output=csv";
-        const CSV_MARKS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTK1rQeMq2o_-KpvnhW8aitybwhR0cud8bxLgc7rs46GFba0lFnzsepdSHBR4qTYyP0eapgbbHXtsOG/pub?gid=1325589771&single=true&output=csv";
-        
-        const ADMIN_EMAILS = ['haniff.faizal@ipgm.edu.my', 'haniff.faizal@gmail.com'];
-        const KUMPULAN_LIST = ["GREY", "UNGU", "PINK", "KUNING", "BIRU", "HIJAU", "BIRU GELAP", "COKLAT", "JINGGA", "MERAH"];
-        const NO_AHLI_LIST = Array.from({ length: 20 }, (_, i) => (i + 1).toString());
-        const COLOR_MAP = { "PINK": "P", "UNGU": "U", "GREY": "G", "KUNING": "K", "BIRU": "B", "HIJAU": "H", "BIRU GELAP": "BG", "COKLAT": "C", "JINGGA": "J", "MERAH": "M" };
+<nav class="max-w-5xl mx-auto flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+        <button onclick="nav('dashboard')" id="btn-dashboard" class="nav-btn glass px-6 py-3 text-[10px] font-bold active nav-active">DASHBOARD</button>
+        <button onclick="nav('kuiz')" id="btn-kuiz" class="nav-btn glass px-6 py-3 text-[10px] font-bold">1. KUIZ (30%)</button>
+        <button onclick="nav('amali1')" id="btn-amali1" class="nav-btn glass px-6 py-3 text-[10px] font-bold">2. AMALI 1 (20%)</button>
+        <button onclick="nav('hp3')" id="btn-hp3" class="nav-btn glass px-6 py-3 text-[10px] font-bold">3. HP3 (25%)</button>
+        <button onclick="nav('hp8')" id="btn-hp8" class="nav-btn glass px-6 py-3 text-[10px] font-bold">4. HP8 (45%)</button>
+        <button id="btn-dashboard" onclick="nav('dashboard')" class="nav-btn glass px-6 py-3 text-[10px] font-bold active nav-active">DASHBOARD</button>
+        <button id="btn-kuiz" onclick="nav('kuiz')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">1. KUIZ (30%)</button>
+        <button id="btn-amali1" onclick="nav('amali1')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">2. AMALI 1 (20%)</button>
+        <button id="btn-hp3" onclick="nav('hp3')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">3. HP3 (25%)</button>
+        <button id="btn-hp8" onclick="nav('hp8')" class="nav-btn glass px-6 py-3 text-[10px] font-bold">4. HP8 (45%)</button>
+</nav>
 
-        const RUBRIK_RAKAN = ['K1', 'K2', 'K3', 'K4', 'K5'];
+<main class="max-w-5xl mx-auto">
 
-        // --- KOMPONEN IKON ---
-        const Icon = ({ name, size = 20, className = "" }) => {
-            const [svg, setSvg] = useState('');
-            useEffect(() => {
-                if (window.lucide && window.lucide.icons[name]) {
-                    setSvg(window.lucide.icons[name].toSvg({ width: size, height: size }));
-                }
-            }, [name, size]);
-            return <span className={`inline-flex items-center justify-center shrink-0 ${className}`} dangerouslySetInnerHTML={{ __html: svg }} />;
-        };
+<section id="dashboard" class="content-section active">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="glass p-6 text-center border-b-4 border-indigo-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Bil. Pelajar</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 text-center">
+                <div class="glass p-6 border-b-4 border-indigo-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Bil. Pelajar</p>
+<p id="total-stu" class="text-3xl font-black">0</p>
+</div>
+                <div class="glass p-6 text-center border-b-4 border-emerald-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Lulus (C+)</p>
+                <div class="glass p-6 border-b-4 border-emerald-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Lulus (C)</p>
+<p id="pass-count" class="text-3xl font-black">0</p>
+</div>
+                <div class="glass p-6 text-center border-b-4 border-red-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Gagal (F)</p>
+                <div class="glass p-6 border-b-4 border-red-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Gagal (F)</p>
+<p id="fail-count" class="text-3xl font-black">0</p>
+</div>
+                <div class="glass p-6 text-center border-b-4 border-amber-500">
+                    <p class="text-[10px] opacity-50 uppercase font-black">Purata Kelas</p>
+                <div class="glass p-6 border-b-4 border-amber-500">
+                    <p class="text-[10px] opacity-50 font-black uppercase">Purata</p>
+<p id="avg-class" class="text-3xl font-black">0.0</p>
+</div>
+</div>
 
-        // --- PENGIMBAS CSV TEPAT ---
-        const parseCSVData = (csvText) => {
-            const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
-            if (lines.length < 2) return [];
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, '').toLowerCase());
-            
-            return lines.slice(1).map(line => {
-                const values = [];
-                let inQuotes = false;
-                let val = '';
-                for (let i = 0; i < line.length; i++) {
-                    let char = line[i];
-                    if (char === '"') inQuotes = !inQuotes;
-                    else if (char === ',' && !inQuotes) { values.push(val); val = ''; }
-                    else val += char;
-                }
-                values.push(val);
+<div class="glass overflow-hidden">
+                <div class="p-6 bg-white/5 font-black uppercase tracking-widest text-xs border-b border-white/10">Analisis Prestasi LIVE</div>
+                <div class="p-6 bg-white/5 font-black text-xs uppercase border-b border-white/10 tracking-widest">Analisis Prestasi LIVE</div>
+<div class="overflow-x-auto">
+<table class="w-full text-xs text-left">
+<thead class="bg-indigo-600/20 text-indigo-300">
+<tr>
+                                <th class="p-5">Nama Pelajar</th>
+                                <th class="p-5 text-center">Teori (30%)</th>
+                                <th class="p-5 text-center">Amali (70%)</th>
+                                <th class="p-5">Pelajar</th>
+                                <th class="p-5 text-center">Teori(30%)</th>
+                                <th class="p-5 text-center">Amali(90%)</th>
+<th class="p-5 text-center">Jumlah</th>
+<th class="p-5 text-center">Gred</th>
+</tr>
+@@ -72,59 +71,88 @@
+</div>
+</section>
 
-                let obj = {};
-                headers.forEach((h, i) => {
-                    obj[h] = values[i] ? values[i].trim() : '';
-                });
-                return obj;
-            });
-        };
-
-        // --- KOMPONEN PENGIMBAS ---
-        const ScannerModal = ({ isOpen, onClose, onScan, students }) => {
-            useEffect(() => {
-                let html5QrCode;
-                if (isOpen) {
-                    html5QrCode = new Html5Qrcode("reader");
-                    html5QrCode.start(
-                        { facingMode: "environment" }, 
-                        { fps: 15, qrbox: { width: 250, height: 250 } }, 
-                        (decodedText) => {
-                            const code = decodedText.trim().toUpperCase();
-                            let found = students.find(s => s.no_kp === code);
-                            if (!found) {
-                                found = students.find(s => {
-                                    const cInit = COLOR_MAP[s.kumpulan?.toUpperCase()] || s.kumpulan?.charAt(0);
-                                    return `${cInit}${s.no_kumpulan}` === code;
-                                });
-                            }
-                            if (found) { onScan(found); html5QrCode.stop().then(onClose).catch(onClose); }
-                        },
-                        () => {}
-                    );
-                }
-                return () => { if (html5QrCode?.isScanning) html5QrCode.stop().catch(()=>{}); };
-            }, [isOpen, students, onScan, onClose]);
-
-            if (!isOpen) return null;
-            return (
-                <div className="fixed inset-0 z-[100] bg-slate-900/90 flex flex-col items-center justify-center p-6 backdrop-blur-sm">
-                    <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-2xl">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-blue-900 font-bold text-sm uppercase tracking-widest">Imbas Kod Pelajar</h3>
-                            <button onClick={onClose} className="p-2 bg-slate-100 rounded-xl text-slate-500"><Icon name="x" size={20}/></button>
-                        </div>
-                        <div id="reader" className="bg-slate-100 rounded-2xl mb-4 overflow-hidden border-2 border-slate-200"></div>
-                        <p className="text-slate-500 text-xs text-center leading-relaxed">Halakan kamera ke QR No. KP atau Tag Ahli</p>
-                    </div>
+        <section id="assessment-container" class="glass p-8 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8 pb-8 border-b border-white/10">
+                <div class="flex gap-6 items-center">
+                    <div id="photo-box" class="w-24 h-24 glass rounded-2xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30">
+                        <i class="fas fa-user-circle text-4xl opacity-10"></i>
+        <section id="input-area" class="content-section">
+            <div class="glass p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <select id="sel-class" onchange="filterStudents(this.value)" class="glass-input text-xs uppercase"><option value="">-- PILIH KELAS --</option></select>
+                    <select id="sel-student" onchange="loadStudent(this.value)" class="glass-input text-xs uppercase"><option value="">-- PILIH PELAJAR --</option></select>
                 </div>
-            );
-        };
 
-        // --- PANDANGAN LOGIN ---
-        const LoginView = ({ role, setRole, handleLogin, students, onQuickScan }) => {
-            const [scanCode, setScanCode] = useState('');
-            const [isScanning, setIsScanning] = useState(false);
-            
-            const handleManualTag = (e) => {
-                const code = e.target.value.toUpperCase().trim();
-                setScanCode(code);
-                if (code.length >= 2) {
-                    const found = students.find(s => {
-                        const cInit = COLOR_MAP[s.kumpulan?.toUpperCase()] || s.kumpulan?.charAt(0);
-                        return `${cInit}${s.no_kumpulan}` === code;
-                    }) || students.find(s => s.no_kp === code);
-                    if (found) { onQuickScan(found); setScanCode(''); }
-                }
-            };
+                <div class="flex flex-col md:flex-row gap-8 items-center mb-8 border-b border-white/10 pb-8">
+                    <div id="photo-box" class="w-32 h-32 glass rounded-3xl overflow-hidden flex items-center justify-center border-2 border-indigo-500/30">
+                        <i class="fas fa-user-circle text-5xl opacity-10"></i>
+</div>
+                    <div>
+                        <h2 id="display-name" class="font-black text-lg uppercase tracking-tight">Pilih Pelajar</h2>
+                        <p id="display-id" class="text-[10px] opacity-40 font-bold">ID SISTEM</p>
+                    <div class="text-center md:text-left">
+                        <h2 id="display-name" class="text-xl font-black uppercase tracking-tight">Nama Pelajar</h2>
+                        <p id="display-id" class="text-xs opacity-40 font-bold">ID SISTEM</p>
+</div>
+</div>
+                <div class="space-y-4">
+                    <select id="sel-class" onchange="filterStudents(this.value)" class="glass-input text-left text-xs uppercase"><option value="">-- FILTER KELAS --</option></select>
+                    <select id="sel-student" onchange="loadStudent(this.value)" class="glass-input text-left text-xs uppercase"><option value="">PILIH NAMA</option></select>
 
-            return (
-                <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden text-center">
-                    <ScannerModal isOpen={isScanning} onClose={() => setIsScanning(false)} onScan={onQuickScan} students={students} />
-                    
-                    <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-md bg-slate-900/80 backdrop-blur-2xl p-8 rounded-[40px] z-10 border border-slate-800 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                        <div className="absolute top-0 right-0 p-4 z-20 flex gap-2">
-                            <button onClick={() => setIsScanning(true)} className="bg-emerald-500/10 text-emerald-500 p-2.5 rounded-xl shadow-sm active:scale-90 transition-all border border-emerald-500/20"><Icon name="camera" size={20}/></button>
-                            <input value={scanCode} onChange={handleManualTag} className="w-24 bg-slate-800 border border-slate-700 rounded-xl py-1 px-2 text-center text-xs font-black text-emerald-400 outline-none" placeholder="TAG ID" />
-                        </div>
-                        <div className="mb-10 mt-8">
-                            <div className="inline-flex p-4 bg-emerald-500/10 rounded-3xl mb-6 shadow-sm border border-emerald-500/20">
-                                <Icon name="shield-check" className="text-emerald-500" size={44} />
-                            </div>
-                            <h2 className="text-4xl font-black text-white tracking-tighter italic uppercase">BIG Hub.</h2>
-                            <p className="text-slate-400 mt-2 text-[10px] font-black uppercase tracking-[0.4em]">OS Version 48.0</p>
-                        </div>
-                        
-                        <form onSubmit={handleLogin} className="space-y-6 text-left">
-                            <div className="flex p-1.5 bg-slate-800/50 rounded-2xl mb-8 border border-slate-700">
-                                <button type="button" onClick={() => setRole('staff')} className={`flex-1 py-3 text-[10px] font-black rounded-xl transition-all uppercase ${role === 'staff' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'}`}>Pensyarah</button>
-                                <button type="button" onClick={() => setRole('student')} className={`flex-1 py-3 text-[10px] font-black rounded-xl transition-all uppercase ${role === 'student' ? 'bg-emerald-500 text-slate-950 shadow-sm' : 'text-slate-400'}`}>Pelajar</button>
-                            </div>
+                <div id="form-kuiz" class="sub-form hidden">
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUIZ 1 (15%)</label><input type="number" id="k1" max="15" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUIZ 2 (15%)</label><input type="number" id="k2" max="15" class="glass-input"></div>
+                    </div>
+                    <button onclick="save()" class="w-full bg-indigo-600 p-4 rounded-2xl font-black">SIMPAN KUIZ</button>
+</div>
+            </div>
 
-                            {role === 'student' ? (
-                                <div className="relative">
-                                    <Icon name="user" className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                                    <input name="ic" type="text" placeholder="No. Kad Pengenalan" className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 pl-14 text-white text-center font-bold tracking-widest outline-none focus:border-emerald-500" required />
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <div className="relative">
-                                        <Icon name="mail" className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                                        <input name="email" type="email" placeholder="E-mel Rasmi" className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 pl-14 text-white outline-none focus:border-emerald-500" required />
-                                    </div>
-                                    <div className="relative">
-                                        <Icon name="lock" className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-                                        <input name="password" type="password" placeholder="Kata Laluan" className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4 pl-14 text-white outline-none focus:border-emerald-500" required />
-                                    </div>
-                                </div>
-                            )}
-                            <button type="submit" className="w-full py-5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-2xl shadow-md active:scale-95 transition-all text-xs tracking-widest uppercase">
-                                Masuk Sistem
-                            </button>
-                        </form>
-                    </motion.div>
+            <div id="form-content">
+                <div id="kuiz-form" class="sub-form active">
+                <div id="form-amali1" class="sub-form hidden">
+<div class="grid grid-cols-2 gap-4 mb-6">
+                        <input type="number" id="k1" placeholder="K1 (15%)" max="15" class="glass-input text-xl font-bold">
+                        <input type="number" id="k2" placeholder="K2 (15%)" max="15" class="glass-input text-xl font-bold">
+                        <div><label class="text-[9px] opacity-40 block mb-1">HP4 INTERPERSONAL (10%)</label><input type="number" id="a1_hp4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">HP5 KOMUNIKASI (10%)</label><input type="number" id="a1_hp5" max="10" class="glass-input"></div>
+                    </div>
+                    <button onclick="save()" class="w-full bg-purple-600 p-4 rounded-2xl font-black">SIMPAN AMALI 1</button>
                 </div>
-            );
-        };
 
-        // --- DASHBOARD ADMIN ---
-        const AdminDashboard = ({ students, onLogout, onSelectStudent }) => {
-            const [search, setSearch] = useState('');
-            const filteredStudents = useMemo(() => students.filter(s => s.nama?.toLowerCase().includes(search.toLowerCase())), [students, search]);
+                <div id="form-hp3" class="sub-form hidden">
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        <div><label class="text-[9px] opacity-40 block mb-1">P4 MEKANISME (10%)</label><input type="number" id="hp3_p4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KAT10 T.JAWAB (10%)</label><input type="number" id="hp3_kat10" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">A5 NILAI (5%)</label><input type="number" id="hp3_a5" max="5" class="glass-input"></div>
+</div>
+                    <button onclick="save()" class="w-full bg-indigo-600 p-4 rounded-2xl font-black shadow-lg">SIMPAN KUIZ</button>
+                    <button onclick="save()" class="w-full bg-emerald-600 p-4 rounded-2xl font-black">SIMPAN HP3</button>
+</div>
 
-            return (
-                <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
-                    <div className="p-4 md:p-6 bg-white border-b border-slate-200 flex items-center justify-between shrink-0 shadow-sm z-50">
-                        <div className="flex items-center gap-4 text-left">
-                            <div className="w-10 h-10 bg-blue-900 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-sm">B</div>
-                            <div>
-                                <h1 className="font-black text-[11px] text-blue-900 uppercase tracking-widest leading-none mb-1">Admin Terminal</h1>
-                                <p className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">Haniff Faizal</p>
-                            </div>
-                        </div>
-                        <button onClick={onLogout} className="p-3 bg-red-50 rounded-xl text-red-500 active:scale-90"><Icon name="log-out" size={18}/></button>
+                <div id="form-hp8" class="sub-form hidden">
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div><label class="text-[9px] opacity-40 block mb-1">IND P4 (10%)</label><input type="number" id="hp8_ind_p4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">IND KAT10 (5%)</label><input type="number" id="hp8_ind_kat10" max="5" class="glass-input"></div>
                     </div>
-
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar text-left max-w-4xl mx-auto w-full">
-                        <div className="relative mb-2">
-                            <Icon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                            <input value={search} onChange={e => setSearch(e.target.value)} className="form-input pl-12 py-3 text-sm shadow-inner" placeholder="Cari pangkalan data global..." />
-                        </div>
-                        <div className="space-y-3 pb-24">
-                            {filteredStudents.map((s, idx) => (
-                                <div key={idx} onClick={() => onSelectStudent(s)} className="bg-white p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:border-blue-200 transition-colors shadow-sm border border-slate-200 active:scale-[0.98]">
-                                    <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200">
-                                        {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <Icon name="user" className="text-slate-400" size={20} />}
-                                    </div>
-                                    <div className="flex-1 overflow-hidden">
-                                        <h4 className="text-xs font-bold text-blue-900 uppercase truncate mb-1">{s.nama || "TIADA NAMA"}</h4>
-                                        <p className="text-[9px] text-slate-500 font-bold uppercase">Unit: {s.kelas} | Kump: {s.kumpulan}{s.no_kumpulan}</p>
-                                    </div>
-                                    <Icon name="chevron-right" className="text-slate-400 shrink-0" size={20} />
-                                </div>
-                            ))}
-                        </div>
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUMP HP8 (10%)</label><input type="number" id="hp8_kump_hp8" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUMP P4 (10%)</label><input type="number" id="hp8_kump_p4" max="10" class="glass-input"></div>
+                        <div><label class="text-[9px] opacity-40 block mb-1">KUMP KAT10 (10%)</label><input type="number" id="hp8_kump_kat10" max="10" class="glass-input"></div>
                     </div>
-                </div>
-            );
-        };
+                    <button onclick="save()" class="w-full bg-blue-600 p-4 rounded-2xl font-black">SIMPAN HP8</button>
+</div>
+            </div>
+</section>
+</main>
 
-        // --- DASHBOARD PENSYARAH ---
-        const LecturerDashboard = ({ currentUser, students, onLogout, setSelectedStudent }) => {
-            const [searchQuery, setSearchQuery] = useState('');
-            const [fSiri, setFSiri] = useState('');
-            const [fKelas, setFKelas] = useState('');
-            const [isScanning, setIsScanning] = useState(false);
+<script>
+        const API = "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec"; 
+        const API = "https://script.google.com/macros/s/AKfycbyCTEXTf1BT7tY_Z6SsuN8knvUmZJSpoRluSffTpUhJygURjmcibkZYgHdlC6LSt3wljw/exec";
+let allStudents = [], existingScores = {};
 
-            // Saringan bergantung
-            const filterOptions = useMemo(() => {
-                let list = students.filter(s => s.nama_pensyarah?.trim().toLowerCase() === currentUser?.nama_pensyarah?.trim().toLowerCase());
-                const siris = [...new Set(list.map(s => s.siri).filter(Boolean))].sort();
-                const listForKelas = fSiri ? list.filter(s => s.siri === fSiri) : list;
-                const kelas = [...new Set(listForKelas.map(s => s.kelas).filter(Boolean))].sort();
-                return { siris, kelas };
-            }, [students, currentUser, fSiri]);
+window.onload = async () => { toggleLoader(true); await fetchData(); toggleLoader(false); };
 
-            const filteredList = useMemo(() => {
-                let list = students.filter(s => s.nama_pensyarah?.trim().toLowerCase() === currentUser?.nama_pensyarah?.trim().toLowerCase());
-                if (fSiri) list = list.filter(s => s.siri === fSiri);
-                if (fKelas) list = list.filter(s => s.kelas === fKelas);
-                if (searchQuery) list = list.filter(s => (s.nama||"").toLowerCase().includes(searchQuery.toLowerCase()));
-                return list;
-            }, [students, currentUser, fSiri, fKelas, searchQuery]);
-
-            return (
-                <div className="h-screen flex flex-col bg-slate-50 font-sans relative overflow-hidden">
-                    <ScannerModal isOpen={isScanning} onClose={() => setIsScanning(false)} onScan={setSelectedStudent} students={students} />
-                    
-                    <div className="p-5 bg-white border-b border-slate-200 flex items-center justify-between shrink-0 shadow-sm z-40 text-left">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-900 rounded-lg flex items-center justify-center font-black text-white text-sm">B</div>
-                            <div>
-                                <h1 className="font-black text-xs text-blue-900 uppercase leading-none mb-1">Lecturer Hub</h1>
-                                <p className="text-[10px] text-slate-500 font-bold uppercase">{currentUser?.nama_pensyarah}</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <button onClick={() => setIsScanning(true)} className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors"><Icon name="camera" size={18}/></button>
-                            <button onClick={onLogout} className="p-2.5 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors"><Icon name="log-out" size={18}/></button>
-                        </div>
-                    </div>
-
-                    <div className="p-5 bg-white border-b border-slate-200 shrink-0 space-y-4 text-left">
-                        <div className="grid grid-cols-2 gap-3 max-w-4xl mx-auto w-full">
-                            <div>
-                                <label className="text-[9px] font-black text-slate-500 uppercase px-1 mb-1.5 block">Siri BIG</label>
-                                <select value={fSiri} onChange={e => { setFSiri(e.target.value); setFKelas(''); }} className="form-input py-2.5 text-sm">
-                                    <option value="">Semua Siri</option>
-                                    {filterOptions.siris.map(v => <option key={v} value={v}>{v}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-[9px] font-black text-slate-500 uppercase px-1 mb-1.5 block">Kelas</label>
-                                <select value={fKelas} onChange={e => setFKelas(e.target.value)} className="form-input py-2.5 text-sm">
-                                    <option value="">Semua Kelas</option>
-                                    {filterOptions.kelas.map(v => <option key={v} value={v}>{v}</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="relative max-w-4xl mx-auto w-full">
-                            <Icon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="form-input pl-12 py-3 text-sm shadow-inner" placeholder="Cari nama pelajar..." />
-                        </div>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3 pb-24 text-left max-w-4xl mx-auto w-full">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase px-1">{filteredList.length} Pelajar Ditemui</p>
-                        
-                        {filteredList.map((s, idx) => (
-                            <div key={idx} onClick={() => setSelectedStudent(s)} className="bg-white p-4 rounded-2xl flex items-center gap-4 cursor-pointer border border-slate-200 shadow-sm hover:shadow-md transition-all active:scale-[0.98]">
-                                <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
-                                    {s.url_gambar ? <img src={s.url_gambar} className="w-full h-full object-cover" /> : <Icon name="user" className="text-slate-400" size={20} />}
-                                </div>
-                                <div className="flex-1 overflow-hidden">
-                                    <h4 className="font-bold text-blue-900 text-xs uppercase truncate mb-1">{s.nama}</h4>
-                                    <div className="flex gap-2">
-                                        <span className="text-[9px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded uppercase">{s.kelas}</span>
-                                        <span className="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded uppercase">Siri {s.siri}</span>
-                                    </div>
-                                </div>
-                                <div className="text-right shrink-0">
-                                    <p className="text-sm font-black text-blue-900">{s.marks?.total || '0'}%</p>
-                                    <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5">Jumlah</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            );
-        };
-
-        // --- STUDENT PORTAL ---
-        const StudentPortal = ({ currentUser, onLogout, saveBiodata, syncing, students }) => {
-            const [activeTab, setActiveTab] = useState('profil');
-            const [formData, setFormData] = useState({ 
-                siri: currentUser.siri || '', 
-                kumpulan: currentUser.kumpulan || '', 
-                no_kumpulan: currentUser.no_kumpulan || '', 
-                alahan: currentUser.alahan || '', 
-                tel_kecemasan: currentUser.tel_kecemasan || '',
-                url_gambar: currentUser.url_gambar || '' 
-            });
-            const [preview, setPreview] = useState(currentUser.url_gambar || null);
-            const fileRef = useRef(null);
-
-            const [peerRatings, setPeerRatings] = useState({});
-
-            const teammates = useMemo(() => {
-                if(!currentUser.siri || !currentUser.kumpulan) return [];
-                return students.filter(s => 
-                    s.siri === currentUser.siri && 
-                    s.kumpulan === currentUser.kumpulan && 
-                    s.no_kp !== currentUser.no_kp
-                );
-            }, [students, currentUser]);
-
-            const handleImage = (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (re) => {
-                        setPreview(re.target.result);
-                        setFormData(p => ({...p, url_gambar: re.target.result}));
-                    };
-                    reader.readAsDataURL(file);
-                }
-            };
-
-            const handleRate = (peerKp, rubrik, nilai) => {
-                setPeerRatings(prev => ({
-                    ...prev,
-                    [peerKp]: { ...(prev[peerKp] || {}), [rubrik]: nilai }
-                }));
-            };
-
-            return (
-                <div className="min-h-screen bg-slate-50 font-sans pb-10">
-                    <div className="max-w-4xl mx-auto p-4 md:p-8">
-                        <div className="flex justify-between items-start mb-6 text-left">
-                            <div>
-                                <h1 className="text-xl md:text-2xl font-black text-blue-900 uppercase tracking-tight">{currentUser?.nama}</h1>
-                                <p className="text-xs md:text-sm font-bold text-slate-500 uppercase mt-1">NO KP: {currentUser?.no_kp} <span className="mx-2">|</span> KELAS: {currentUser?.kelas}</p>
-                            </div>
-                            <button onClick={onLogout} className="px-4 py-2 text-xs font-bold text-red-500 border border-red-500 rounded-lg hover:bg-red-50 transition-colors uppercase shrink-0">Log Keluar</button>
-                        </div>
-
-                        <div className="flex flex-col md:flex-row gap-3 mb-6">
-                            <button onClick={() => setActiveTab('profil')} className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'profil' ? 'bg-blue-900 text-white shadow-md' : 'bg-white text-blue-900 border border-blue-100 hover:bg-blue-50'}`}>
-                                1. PROFIL & KUMPULAN
-                            </button>
-                            <button onClick={() => setActiveTab('rakan')} className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'rakan' ? 'bg-blue-900 text-white shadow-md' : 'bg-white text-blue-900 border border-blue-100 hover:bg-blue-50'}`}>
-                                2. PENILAIAN RAKAN
-                            </button>
-                        </div>
-
-                        {activeTab === 'profil' && (
-                            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8 text-left">
-                                <div className="flex flex-col md:flex-row gap-8 items-start">
-                                    <div className="flex flex-col items-center gap-4 w-full md:w-auto">
-                                        <div className="w-32 h-40 bg-slate-100 rounded-xl overflow-hidden shadow-inner border border-slate-200 flex items-center justify-center shrink-0">
-                                            {preview ? <img src={preview} className="w-full h-full object-cover" /> : <Icon name="user" size={40} className="text-slate-400" />}
-                                        </div>
-                                        <input type="file" ref={fileRef} onChange={handleImage} className="hidden" accept="image/*" />
-                                        <button onClick={() => fileRef.current.click()} className="text-xs font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg w-full border border-blue-100">Muat Naik</button>
-                                    </div>
-
-                                    <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-slate-500 uppercase px-1">SIRI BIG</label>
-                                            <input value={formData.siri} onChange={e => setFormData(p=>({...p, siri: e.target.value}))} className="form-input" placeholder="Cth: 4" />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-slate-500 uppercase px-1">KUMPULAN</label>
-                                            <select value={formData.kumpulan.toUpperCase()} onChange={e => setFormData(p=>({...p, kumpulan: e.target.value}))} className="form-input">
-                                                <option value="">Pilih</option>{KUMPULAN_LIST.map(k => <option key={k} value={k}>{k}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-slate-500 uppercase px-1">NO. AHLI</label>
-                                            <select value={formData.no_kumpulan} onChange={e => setFormData(p=>({...p, no_kumpulan: e.target.value}))} className="form-input">
-                                                <option value="">Pilih</option>{NO_AHLI_LIST.map(n => <option key={n} value={n}>{n}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-black text-slate-500 uppercase px-1">NO. TEL WARIS</label>
-                                            <input value={formData.tel_kecemasan} onChange={e => setFormData(p=>({...p, tel_kecemasan: e.target.value}))} className="form-input" placeholder="012-..." />
-                                        </div>
-                                        <div className="space-y-1.5 sm:col-span-2">
-                                            <label className="text-[10px] font-black text-slate-500 uppercase px-1">ALAHAN / PENYAKIT (JIKA ADA)</label>
-                                            <input value={formData.alahan} onChange={e => setFormData(p=>({...p, alahan: e.target.value}))} className="form-input" placeholder="Tiada" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mt-8 border-t border-slate-100 pt-6">
-                                    <button onClick={() => saveBiodata(formData)} disabled={syncing} className="w-full py-4 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
-                                        {syncing ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Icon name="save" size={18}/>} SIMPAN PROFIL
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'rakan' && (
-                            <div className="space-y-6">
-                                {teammates.length > 0 ? (
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                        {teammates.map((peer) => (
-                                            <div key={peer.no_kp} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 text-left">
-                                                <div className="flex items-center gap-3 mb-4 border-b border-slate-100 pb-4">
-                                                    <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
-                                                        {peer.url_gambar ? <img src={peer.url_gambar} className="w-full h-full object-cover" /> : <Icon name="user" className="text-slate-400" size={20} />}
-                                                    </div>
-                                                    <div className="flex-1 overflow-hidden">
-                                                        <h4 className="text-xs font-bold text-blue-900 uppercase truncate">{peer.nama}</h4>
-                                                        <p className="text-[9px] font-bold text-slate-500 uppercase mt-0.5">Ahli {peer.no_kumpulan}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-4">
-                                                    {RUBRIK_RAKAN.map((k, index) => {
-                                                        const descList = [
-                                                            "Kerjasama & Penglibatan",
-                                                            "Kepimpinan & Bimbingan",
-                                                            "Disiplin & Ketepatan Masa",
-                                                            "Inisiatif & Kerajinan",
-                                                            "Sahsiah & Etika"
-                                                        ];
-                                                        return (
-                                                            <div key={k} className="flex justify-between items-center gap-2">
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-xs font-black text-slate-700">{k}</span>
-                                                                    <span className="text-[8px] text-slate-400 font-bold">{descList[index]}</span>
-                                                                </div>
-                                                                <div className="flex gap-1 sm:gap-2">
-                                                                    {[1,2,3,4,5].map(num => {
-                                                                        const isSelected = peerRatings[peer.no_kp]?.[k] === num;
-                                                                        return (
-                                                                            <button 
-                                                                                key={num} 
-                                                                                onClick={() => handleRate(peer.no_kp, k, num)}
-                                                                                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold border transition-all ${isSelected ? 'bg-blue-900 text-white border-blue-900 shadow-md' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-blue-400'}`}
-                                                                            >
-                                                                                {num}
-                                                                            </button>
-                                                                        )
-                                                                    })}
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    })}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center">
-                                        <Icon name="users" size={40} className="text-slate-300 mx-auto mb-3" />
-                                        <p className="text-sm font-bold text-slate-500">Tiada rakan sekumpulan dijumpai.</p>
-                                        <p className="text-xs text-slate-400 mt-1">Pastikan anda telah menetapkan Siri dan Kumpulan pada tab Profil.</p>
-                                    </div>
-                                )}
-                                {teammates.length > 0 && (
-                                    <button onClick={() => alert("Markah penilaian rakan dikemaskini secara lokal.")} className="w-full py-4 bg-blue-900 text-white font-bold rounded-xl shadow-md transition-all uppercase tracking-widest text-xs">
-                                        HANTAR PENILAIAN RAKAN
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        };
-
-        // --- EVALUATION MODAL (UNTUK PENSYARAH & ADMIN) ---
-        const EvaluationPanel = ({ student, onClose, saveMarks, syncing }) => {
-            const [activeTab, setActiveTab] = useState('kuiz');
-            const [marksData, setMarksData] = useState(student.marks || {});
-
-            const handleMarkChange = (key, value, index = null) => {
-                const newData = { ...marksData };
-                if (index !== null) {
-                    const newItems = [...newData.hp3_items];
-                    newItems[index] = parseInt(value) || 0;
-                    newData.hp3_items = newItems;
-                } else {
-                    newData[key] = value;
-                }
-                setMarksData(newData);
-            };
-
-            const hp3Wajaran = useMemo(() => {
-                const totalRaw = (marksData.hp3_items || [0,0,0,0,0,0]).reduce((a, b) => a + b, 0);
-                return ((totalRaw / 600) * 25).toFixed(2);
-            }, [marksData.hp3_items]);
-
-            return (
-                <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="fixed inset-0 z-50 bg-slate-50 flex flex-col h-full overflow-hidden text-left">
-                    <div className="p-5 bg-white border-b border-slate-200 flex items-center gap-4 shrink-0 shadow-sm">
-                        <button onClick={onClose} className="p-2.5 bg-slate-100 rounded-xl text-slate-500 hover:bg-slate-200"><Icon name="chevron-left" size={20}/></button>
-                        <div className="w-12 h-12 rounded-full bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
-                            {student.url_gambar ? <img src={student.url_gambar} className="w-full h-full object-cover" /> : <Icon name="user" className="text-slate-400" size={20} />}
-                        </div>
-                        <div className="flex-1 overflow-hidden">
-                            <h2 className="text-xs font-bold text-blue-900 uppercase truncate mb-0.5">{student.nama}</h2>
-                            <p className="text-[9px] font-bold text-slate-500 uppercase">{student.kelas} | Siri {student.siri}</p>
-                        </div>
-                    </div>
-
-                    <div className="px-5 py-3 flex gap-2 bg-white border-b border-slate-200 shrink-0 overflow-x-auto no-scrollbar justify-center shadow-sm">
-                        {[{id:'kuiz', l:'Kuiz'}, {id:'amali1', l:'Amali 1'}, {id:'amali2', l:'Amali 2'}].map(t => (
-                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === t.id ? 'bg-blue-900 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                                {t.l}
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-5 pb-32 no-scrollbar space-y-6 max-w-3xl mx-auto w-full text-center">
-                        {activeTab === 'kuiz' && (
-                            <div className="space-y-4">
-                                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-3">Markah Kuiz 1</p>
-                                    <input type="number" value={marksData.kuiz1} onChange={e => handleMarkChange('kuiz1', e.target.value)} className="w-full text-center text-4xl font-black text-blue-900 border-none outline-none focus:ring-0 bg-transparent" />
-                                </div>
-                                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase mb-3">Markah Kuiz 2</p>
-                                    <input type="number" value={marksData.kuiz2} onChange={e => handleMarkChange('kuiz2', e.target.value)} className="w-full text-center text-4xl font-black text-blue-900 border-none outline-none focus:ring-0 bg-transparent" />
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'amali1' && (
-                            <div className="space-y-4 text-left">
-                                <div className="bg-blue-50 p-4 rounded-2xl flex justify-between items-center border border-blue-100">
-                                    <span className="text-xs font-bold text-blue-900 uppercase">Amali Praktikal (25%)</span>
-                                    <span className="text-lg font-black text-blue-900">{hp3Wajaran}%</span>
-                                </div>
-                                <div className="space-y-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                                    {["Kecergasan", "Pemakanan", "Kembara", "Keyakinan Air", "Rakit / Kayak", "Tali Tinggi"].map((label, idx) => (
-                                        <div key={label} className="space-y-3">
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-[10px] font-bold text-slate-700 uppercase">{idx+1}. {label}</span>
-                                                <span className="text-sm font-black text-blue-900">{marksData.hp3_items[idx] || 0}</span>
-                                            </div>
-                                            <input type="range" min="0" max="100" value={marksData.hp3_items[idx] || 0} onChange={e => handleMarkChange('hp3_items', e.target.value, idx)} className="giant-slider w-full" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'amali2' && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase mb-2 text-center">HP4 (10%)</p>
-                                    <input type="number" value={marksData.hp4} onChange={e => handleMarkChange('hp4', e.target.value)} className="w-full text-center text-3xl font-black text-blue-900 border-none outline-none focus:ring-0 bg-transparent" />
-                                </div>
-                                <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase mb-2 text-center">HP5 (10%)</p>
-                                    <input type="number" value={marksData.hp5} onChange={e => handleMarkChange('hp5', e.target.value)} className="w-full text-center text-3xl font-black text-blue-900 border-none outline-none focus:ring-0 bg-transparent" />
-                                </div>
-                                <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase mb-2 text-center">HP8 Ind (15%)</p>
-                                    <input type="number" value={marksData.hp8_ind} onChange={e => handleMarkChange('hp8_ind', e.target.value)} className="w-full text-center text-3xl font-black text-blue-900 border-none outline-none focus:ring-0 bg-transparent" />
-                                </div>
-                                <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase mb-2 text-center">HP8 Kum (30%)</p>
-                                    <input type="number" value={marksData.hp8_kum} onChange={e => handleMarkChange('hp8_kum', e.target.value)} className="w-full text-center text-3xl font-black text-blue-900 border-none outline-none focus:ring-0 bg-transparent" />
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="p-5 bg-white border-t border-slate-200 fixed bottom-0 w-full z-20 shadow-lg">
-                        <button 
-                            onClick={async () => {
-                                const res = await saveMarks({ ...student, marks: marksData, hp3_weighted: hp3Wajaran });
-                                if (res) onClose();
-                            }} 
-                            disabled={syncing} 
-                            className="w-full max-w-3xl mx-auto py-4 bg-blue-900 text-white font-bold rounded-xl shadow-md active:scale-95 transition-all text-xs uppercase flex items-center justify-center gap-2"
-                        >
-                            {syncing ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Icon name="save" size={16}/>} SIMPAN MARKAH KESELURUHAN
-                        </button>
-                    </div>
-                </motion.div>
-            );
-        };
-
-        // --- MAIN APP ---
-        function App() {
-            const [view, setView] = useState('login');
-            const [role, setRole] = useState('staff'); 
-            const [currentUser, setCurrentUser] = useState(null);
-            const [students, setStudents] = useState([]);
-            const [loading, setLoading] = useState(true);
-            const [syncing, setSyncing] = useState(false);
-            const [selectedStudent, setSelectedStudent] = useState(null);
-
-            const fetchData = useCallback(async () => {
-                setSyncing(true);
-                try {
-                    const [resS, resL, resM] = await Promise.all([
-                        fetch(`${CSV_STUDENTS_URL}&t=${Date.now()}`).then(r => r.text()),
-                        fetch(`${CSV_LECTURERS_URL}&t=${Date.now()}`).then(r => r.text()),
-                        fetch(`${CSV_MARKS_URL}&t=${Date.now()}`).then(r => r.text())
-                    ]);
-                    
-                    const pL = parseCSVData(resL);
-                    const pM = parseCSVData(resM);
-                    
-                    const pS = parseCSVData(resS).map(s => {
-                        const markD = pM.find(m => m['no_kp']?.toString().trim() === s['no_kp']?.toString().trim()) || {};
-                        return {
-                            id: s['id_sistem'] || '',
-                            nama: s['nama_pelajar'] || '',
-                            no_kp: s['no_kp'] || '',
-                            kelas: s['kelas'] || '',
-                            url_gambar: s['url gambar'] || '',
-                            siri: s['siri big'] || '',
-                            kumpulan: s['kumpulan big'] || '',
-                            no_kumpulan: s['no dalam kumpulan'] || '',
-                            nama_pensyarah: markD['nama_pensyarah'] || s['nama_pensyarah'] || '',
-                            alahan: s['alahan'] || '',
-                            tel_kecemasan: s['tel kecemasan'] || s['no tel kecemasan'] || '',
-                            marks: {
-                                kuiz1: markD['kuiz1'] || '0',
-                                kuiz2: markD['kuiz2'] || '0',
-                                hp4: markD['hp4 (10%)'] || '0',
-                                hp5: markD['hp5 (10%)'] || '0',
-                                hp8_ind: markD['hp8 ind (15%)'] || '0',
-                                hp8_kum: markD['hp8 kum (30%)'] || '0',
-                                hp3_items: [0,0,0,0,0,0],
-                                total: markD['jumlah (100%)'] || '0'
-                            }
-                        };
-                    }).filter(s => s.nama);
-                    
-                    setStudents(pS);
-                    
-                    if(pL.length > 0) {
-                        window.cachedLecturers = pL;
-                    }
-                } catch (e) { console.error("Sync Error:", e); }
-                finally { setSyncing(false); setLoading(false); }
-            }, []);
-
-            useEffect(() => { fetchData(); }, [fetchData]);
-
-            const handleLogin = (e) => {
-                e.preventDefault();
-                const email = e.target.email?.value.trim().toLowerCase();
-                const pass = e.target.password?.value.trim();
-                const ic = e.target.ic?.value.trim();
-
-                if (role === 'student') {
-                    const found = students.find(s => s.no_kp === ic);
-                    if (found) { setCurrentUser(found); setView('student_portal'); }
-                    else alert("Sila periksa No Kad Pengenalan anda.");
-                } else {
-                    if (ADMIN_EMAILS.includes(email) && (pass === '123456' || pass === '30621')) {
-                        setCurrentUser({ nama_pensyarah: 'Haniff Faizal', email: email });
-                        setView('admin_dashboard');
-                    } else {
-                        const lects = window.cachedLecturers || [];
-                        const lect = lects.find(s => s.email === email && s.password?.toString() === pass);
-                        if (lect) { 
-                            setCurrentUser({ nama_pensyarah: lect['nama_pensyarah'] || lect.nama, email }); 
-                            setView('lecturer_dashboard'); 
-                        } else {
-                            alert("Kredensial tidak sah. Sila periksa e-mel dan kata laluan.");
-                        }
-                    }
-                }
-            };
-
-            const saveMarks = async (studentToSave) => {
-                setSyncing(true);
-                try {
-                    const payload = {
-                        target: 'markah',
-                        no_kp: studentToSave.no_kp,
-                        data: {
-                            'Kuiz1': studentToSave.marks.kuiz1,
-                            'Kuiz2': studentToSave.marks.kuiz2,
-                            'HP4 (10%)': studentToSave.marks.hp4,
-                            'HP5 (10%)': studentToSave.marks.hp5,
-                            'HP8 Ind (15%)': studentToSave.marks.hp8_ind,
-                            'HP8 Kum (30%)': studentToSave.marks.hp8_kum,
-                            'HP3 (25%)': studentToSave.hp3_weighted
-                        }
-                    };
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    const result = await res.json();
-                    if(result.status === 'success') {
-                        alert("Markah Berjaya Disimpan!");
-                        setTimeout(fetchData, 1000);
-                        return true;
-                    }
-                    throw new Error("Gagal");
-                } catch (e) { alert("Ralat Server. Sila periksa Google Apps Script."); return false; }
-                finally { setSyncing(false); }
-            };
-
-            const saveBiodata = async (formData) => {
-                setSyncing(true);
-                try {
-                    const payload = { 
-                        target: 'biodata', 
-                        no_kp: currentUser.no_kp, 
-                        data: {
-                            'SIRI BIG': formData.siri,
-                            'KUMPULAN BIG': formData.kumpulan,
-                            'No Dalam Kumpulan': formData.no_kumpulan,
-                            'Url Gambar': formData.url_gambar
-                        }
-                    };
-                    const res = await fetch(GOOGLE_SHEET_API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    const result = await res.json();
-                    if(result.status === 'success') {
-                        alert("Biodata berjaya dikemaskini!");
-                        setCurrentUser({ ...currentUser, ...formData });
-                        fetchData();
-                    } else { throw new Error("Gagal"); }
-                } catch (e) { alert("Ralat menyimpan data."); }
-                finally { setSyncing(false); }
-            };
-
-            if (loading) return (
-                <div className="h-screen flex flex-col items-center justify-center gap-4 bg-slate-50">
-                    <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-900 rounded-full animate-spin"></div>
-                    <p className="text-blue-900 font-bold text-xs animate-pulse tracking-widest uppercase">Memuatkan Data...</p>
-                </div>
-            );
-
-            return (
-                <div className="selection:bg-blue-500/30 overflow-hidden">
-                    {view === 'login' && <LoginView role={role} setRole={setRole} handleLogin={handleLogin} students={students} onQuickScan={(s) => { setSelectedStudent(s); setView('lecturer_dashboard'); }} />}
-                    {view === 'admin_dashboard' && <AdminDashboard students={students} onLogout={() => setView('login')} onSelectStudent={(s) => setSelectedStudent(s)} />}
-                    {view === 'lecturer_dashboard' && <LecturerDashboard currentUser={currentUser} students={students} onLogout={() => setView('login')} setSelectedStudent={setSelectedStudent} />}
-                    {view === 'student_portal' && <StudentPortal currentUser={currentUser} students={students} onLogout={() => setView('login')} saveBiodata={saveBiodata} syncing={syncing} />}
-                    
-                    <AnimatePresence>
-                        {selectedStudent && (
-                            <EvaluationPanel student={selectedStudent} onClose={() => setSelectedStudent(null)} saveMarks={saveMarks} syncing={syncing} />
-                        )}
-                    </AnimatePresence>
-                </div>
-            );
+async function fetchData() {
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_data' }) });
+            const d = await res.json();
+            allStudents = d.data.students; existingScores = d.data.scores;
+            updateDashboard();
+            populateFilters();
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+        function populateFilters() {
+            const classes = [...new Set(allStudents.map(s => s.Kelas))].sort();
+            const selClass = document.getElementById('sel-class');
+            classes.forEach(c => selClass.innerHTML += `<option value="${c}">${c}</option>`);
+            filterStudents("");
+            try {
+                const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_data' }) });
+                const d = await res.json();
+                allStudents = d.data.students; existingScores = d.data.scores;
+                
+                const classes = [...new Set(allStudents.map(s => s.Kelas))].sort();
+                const classSel = document.getElementById('sel-class');
+                classes.forEach(c => classSel.innerHTML += `<option value="${c}">${c}</option>`);
+                
+                updateDashboard();
+                filterStudents("");
+            } catch (e) { alert("Ralat memuatkan data!"); }
+}
+
+function filterStudents(cls) {
+const sel = document.getElementById('sel-student');
+            sel.innerHTML = '<option value="">PILIH NAMA</option>';
+            sel.innerHTML = '<option value="">-- PILIH PELAJAR --</option>';
+const filtered = cls ? allStudents.filter(s => s.Kelas === cls) : allStudents;
+filtered.forEach(s => sel.innerHTML += `<option value="${s.ID_SISTEM}">${s.Nama_Pelajar}</option>`);
+}
+@@ -137,14 +165,32 @@ <h2 id="display-name" class="font-black text-lg uppercase tracking-tight">Pilih
+document.getElementById('display-id').textContent = student.ID_SISTEM;
+
+const photoRes = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'get_photo', studentId: id }) });
+            const pData = await photoRes.json();
+            document.getElementById('photo-box').innerHTML = pData.result === 'success' ? `<img src="${pData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-10 text-3xl"></i>';
+
+            const photoData = await photoRes.json();
+            document.getElementById('photo-box').innerHTML = photoData.result === 'success' ? `<img src="${photoData.photoData}" class="w-full h-full object-cover">` : '<i class="fas fa-user-slash opacity-10 text-4xl"></i>';
+            
+const s = existingScores[id] || [];
+            // Map data sedia ada ke input mengikut kolum F-Q
+            document.getElementById('k1').value = s[5] || "";
+            document.getElementById('k2').value = s[6] || "";
+            // ... Petakan baki ID amali
+            const fields = ['k1','k2','a1_hp4','a1_hp5','hp3_p4','hp3_kat10','hp3_a5','hp8_ind_p4','hp8_ind_kat10','hp8_kump_hp8','hp8_kump_p4','hp8_kump_kat10'];
+            fields.forEach((f, i) => { if(document.getElementById(f)) document.getElementById(f).value = s[i+5] || ""; });
+            toggleLoader(false);
+        }
+
+        async function save() {
+            const id = document.getElementById('sel-student').value;
+            if(!id) return alert("Pilih pelajar!");
+            toggleLoader(true);
+            const student = allStudents.find(s => s.ID_SISTEM === id);
+            const formData = { 
+                ID_SISTEM: id, Nama_Pelajar: student.Nama_Pelajar, Kelas: student.Kelas,
+                k1: document.getElementById('k1').value, k2: document.getElementById('k2').value,
+                a1_hp4: document.getElementById('a1_hp4').value, a1_hp5: document.getElementById('a1_hp5').value,
+                hp3_p4: document.getElementById('hp3_p4').value, hp3_kat10: document.getElementById('hp3_kat10').value, hp3_a5: document.getElementById('hp3_a5').value,
+                hp8_ind_p4: document.getElementById('hp8_ind_p4').value, hp8_ind_kat10: document.getElementById('hp8_ind_kat10').value,
+                hp8_kump_hp8: document.getElementById('hp8_kump_hp8').value, hp8_kump_p4: document.getElementById('hp8_kump_p4').value, hp8_kump_kat10: document.getElementById('hp8_kump_kat10').value
+            };
+            
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: "pensyarah@ipg.edu.my", formData }) });
+            const r = await res.json();
+            if(r.result === 'success') { alert("BERJAYA DISIMPAN!"); await fetchData(); }
+toggleLoader(false);
+}
+
+@@ -154,21 +200,20 @@ <h2 id="display-name" class="font-black text-lg uppercase tracking-tight">Pilih
+let totalMarks = 0, passes = 0, fails = 0;
+
+allStudents.forEach(s => {
+                const score = existingScores[s.ID_SISTEM] || new Array(20).fill(0);
+                const teoria = (parseFloat(score[5])||0) + (parseFloat(score[6])||0);
+                const amalia = 0; // Tambah jumlah amali
+                const total = parseFloat(score[17]) || 0;
+                const gred = score[18] || "F";
+                const sc = existingScores[s.ID_SISTEM] || new Array(20).fill(0);
+                const teori = (parseFloat(sc[5])||0) + (parseFloat(sc[6])||0);
+                const amali = (parseFloat(sc[7])||0) + (parseFloat(sc[8])||0) + (parseFloat(sc[9])||0) + (parseFloat(sc[10])||0) + (parseFloat(sc[11])||0) + (parseFloat(sc[12])||0) + (parseFloat(sc[13])||0) + (parseFloat(sc[14])||0) + (parseFloat(sc[15])||0) + (parseFloat(sc[16])||0);
+                const total = parseFloat(sc[17]) || 0;
+
+                if(total >= 55) passes++; else if(total > 0) fails++;
+                if(total >= 50) passes++; else if(total > 0) fails++;
+totalMarks += total;
+
+tbody.innerHTML += `<tr>
+                   <td class="p-5 font-bold">${s.Nama_Pelajar}</td>
+                    <td class="p-5 text-center opacity-50">${teoria}/30</td>
+                    <td class="p-5 text-center opacity-50">${amalia}/70</td>
+                    <td class="p-5 text-center font-black">${total}</td>
+                    <td class="p-5 text-center"><span class="px-3 py-1 glass rounded-lg text-indigo-300 font-bold">${gred}</span></td>
+                    <td class="p-5 text-center opacity-50">${teori.toFixed(1)}/30</td>
+                    <td class="p-5 text-center opacity-50">${amali.toFixed(1)}/90</td>
+                    <td class="p-5 text-center font-black">${total.toFixed(2)}</td>
+                    <td class="p-5 text-center"><span class="px-3 py-1 glass rounded-lg text-indigo-300 font-bold">${sc[18]||'F'}</span></td>
+               </tr>`;
+});
+
+@@ -180,26 +225,18 @@ <h2 id="display-name" class="font-black text-lg uppercase tracking-tight">Pilih
+
+function nav(id) {
+document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id === 'dashboard' ? 'dashboard' : 'assessment-container').classList.add('active');
+document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+document.getElementById('btn-'+id).classList.add('nav-active');
+            // Logik paparan form spesifik...
+        }
+
+        async function save() {
+            const id = document.getElementById('sel-student').value;
+            if(!id) return alert("Pilih pelajar!");
+            toggleLoader(true);
+            const formData = {
+                ID_SISTEM: id,
+                k1: document.getElementById('k1').value,
+                k2: document.getElementById('k2').value
+                // Tambah data amali lain...
+            };
+            const res = await fetch(API, { method: 'POST', body: JSON.stringify({ action: 'save_mark', userEmail: "admin@ipg.edu.my", formData }) });
+            const result = await res.json();
+            if(result.result === 'success') { alert("Berjaya Disimpan!"); await fetchData(); }
+            toggleLoader(false);
+            
+            if(id === 'dashboard') {
+                document.getElementById('dashboard').classList.add('active');
+                document.getElementById('input-area').classList.remove('active');
+            } else {
+                document.getElementById('dashboard').classList.remove('active');
+                document.getElementById('input-area').classList.add('active');
+                document.querySelectorAll('.sub-form').forEach(f => f.classList.add('hidden'));
+                document.getElementById('form-'+id).classList.remove('hidden');
+            }
+}
+
+function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
